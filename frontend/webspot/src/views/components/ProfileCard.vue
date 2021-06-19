@@ -20,8 +20,8 @@
                 </div>
 
             <div class="col col-12 d-flex justify-content-end nopadding">
-                <a @click="hideFriend()" class="btn-floating waves-effect waves-light me-3 mb-3 default-pale"><i class="material-icons">remove</i></a>
-                <a @click="addFriend()" class="btn-floating waves-effect waves-light default-dark"><i class="material-icons">add</i></a>
+                <a @click="hidePeople()" class="btn-floating waves-effect waves-light me-3 mb-3 default-pale"><i class="material-icons">remove</i></a>
+                <a @click="addPeople()" class="btn-floating waves-effect waves-light default-dark"><i class="material-icons">add</i></a>
             </div>
         </div>
     </div>
@@ -31,16 +31,16 @@
 <script>
 
 export default {
-    name: 'friend-card',
+    name: 'profile-card',
     setup(_, { emit }){
-        function addFriend(){
-            emit("addFriend")
+        function addPeople(){
+            emit("addPeople")
         }
-        function hideFriend(){
-            emit("hideFriend")
+        function hidePeople(){
+            emit("hidePeople")
         }
 
-        return { hideFriend, addFriend }
+        return { hidePeople, addPeople }
     }
 
 }

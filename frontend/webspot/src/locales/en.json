@@ -22,9 +22,10 @@
   "home": "Home",
   "find_friends": "Find friends",
   "actions": "Actions",
-  "new_friends": "New friends",
-  "hidden_friends": "Hidden friends",
-  "current_friends": "Current Friends",
+  "new_people": "New people",
+  "hidden_people": "Hidden people",
+  "hidden_followed": "Hidden but followed",
+  "followed": "Followed",
   "in_group": "In group",
   "by_term": "By term",
   "search": "Search"

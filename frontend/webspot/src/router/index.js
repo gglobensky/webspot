@@ -3,7 +3,7 @@ import SignIn from '../views/pages/SignIn.vue'
 import SignUp from '../views/pages/SignUp.vue'
 import Home from '../views/pages/Home.vue'
 import Profile from '../views/pages/Profile.vue'
-import FriendSearch from '../views/pages/FriendSearch.vue'
+import FollowSearch from '../views/pages/FollowSearch.vue'
 import store from '../store/index'
 
 const routes = [
@@ -11,7 +11,7 @@ const routes = [
   { path: '/signup', name: 'SignUp', component: SignUp },
   { path: '/home', name: 'Home', component: Home, meta: { middleware:'auth' } },
   { path: '/profile', name: 'Profile', component: Profile, meta: { middleware:'auth' } },
-  { path: '/find_friends', name: 'FriendSearch', component: FriendSearch, meta: { middleware:'auth' } }
+  { path: '/find_friends', name: 'FollowSearch', component: FollowSearch, meta: { middleware:'auth' } }
 ]
 
 const router = createRouter({

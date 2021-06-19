@@ -2,7 +2,7 @@
 <div>
     <div class="row">
     <div class="col col-sm-5 col-md-4 col-lg-3 fixed-top hidden-on-xs mt-4">
-        <form @submit.prevent="searchFriends">
+        <form @submit.prevent="searchPeople">
             <div class="card-panel grey lighten-5 z-depth-1" style="height: 87vh; position: relative; top: 62px;">
                 <form-field id="'username'" v-model="searchData.searchTerms" :invalidMessage="'shitdemarde'" :validation="'shitdemarde' == ''" label="Search" />
                 <div class="input-field mb-5">
@@ -28,19 +28,19 @@
         </div>
         <div class="col col-12 col-sm-7 col-md-8 col-lg-9 nopadding">     
             
-            <div v-for="(n, i) in friendsData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 vh-50 mb-1 pe-3">
-                <friend-card @addFriend="addFriend()" imageSrc="https://randomuser.me/api/portraits/women/28.jpg">
+            <div v-for="(n, i) in peopleData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 vh-50 mb-1 pe-3">
+                <profile-card @addPeople="addPeople(peopleData[i])" imageSrc="https://randomuser.me/api/portraits/women/28.jpg">
                     <template #image>
-                        <img v-if="friendsData[i].url" :src="`http://localhost:3000/${friendsData[i].url}`" :alt="`${friendsData[i].user.username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
-                        <img v-else :src="require('@/assets/images/user.png')" :alt="`${friendsData[i].user.username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
+                        <img v-if="peopleData[i].url" :src="`http://localhost:3000/${peopleData[i].url}`" :alt="`${peopleData[i].user.username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
+                        <img v-else :src="require('@/assets/images/user.png')" :alt="`${peopleData[i].user.username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
                     </template>
                     <template #header>
-                        {{friendsData[i].user.email}}
+                        {{peopleData[i].user.email}}
                     </template>
                     <template #body>
-                        {{friendsData[i].profile.bio}}
+                        {{peopleData[i].profile.bio}}
                     </template>
-                </friend-card>
+                </profile-card>
             </div>
         </div>
     </div>
@@ -49,21 +49,23 @@
 
 <script>
 import { securedAxiosInstance } from '../../backend/axios'
-import FriendCard from '../components/FriendCard.vue'
+import ProfileCard from '../components/ProfileCard.vue'
 import FormField from '../components/FormField.vue'
 import { onBeforeUnmount, onMounted, ref, reactive } from 'vue'
 import M from 'materialize-css'
 export default {
+    name:'follow-search',
     components:{
-        FriendCard,
+        ProfileCard,
         FormField
     },
     setup(){
         const searchForTerms = [
             "in_group",
-            "new_friends",
-            "hidden_friends",
-            "current_friends"
+            "new_people",
+            "hidden_people",
+            "hidden_followed",
+            "followed"
         ]
         const searchByTerms = [
             "by_term",
@@ -74,23 +76,25 @@ export default {
             searchFor: searchForTerms[0],
             searchBy: searchByTerms[0]
         })
-        const friendsData = ref({
+        const peopleData = ref({
             user: {
                 username:""
             },
             url: "",
             profile: {}
         })
-        function addFriend(){
-
-            for (let i = 0; i < friendsData.value.length; i++){
-                console.log(JSON.stringify(friendsData.value[i].user))
-            }
+        function addPeople(person){
+            console.log("id " + JSON.stringify(person.user.id))
+            securedAxiosInstance.post('/following/create', { followed_id: person.user.id })
+                .then(() => {
+                    console.log("okay")
+                })
+                ,(error => console.log(error))
         }
-        function hideFriend(){
+        function hidePeople(){
 
         }
-        function searchFriends(){
+        function searchPeople(){
             //0 is the placeholder, a disabled option
             if (searchData.searchFor == searchForTerms[0])
                 searchData.searchFor = searchForTerms[1]
@@ -100,7 +104,7 @@ export default {
                 
             securedAxiosInstance.post('/following/search', searchData)
                 .then(response => {
-                    friendsData.value = response.data
+                    peopleData.value = response.data
                 })
                 ,(error => console.log(error))
         }
@@ -109,7 +113,7 @@ export default {
             var elems = document.querySelectorAll('select');
             M.FormSelect.init(elems);
 
-            searchFriends()
+            searchPeople()
         })
         onBeforeUnmount(() => {
             window.removeEventListener("scroll", onScroll)
@@ -123,7 +127,7 @@ export default {
             console.log("Dont forget infinite scroll " + e)
         }
 
-        return { friendsData, searchByTerms, searchForTerms, addFriend, hideFriend, searchFriends, searchData }
+        return { peopleData, searchByTerms, searchForTerms, addPeople, hidePeople, searchPeople, searchData }
     }
 
 }

@@ -22,9 +22,10 @@
     "home": "Acceuil",
     "find_friends": "Trouvez des amis",
     "actions": "Actions",
-    "new_friends": "Nouveaux amis",
-    "hidden_friends": "Amis cachés",
-    "current_friends": "Amis actuels",
+    "new_people": "Nouveaux gens",
+    "hidden_people": "Gens cachés",
+    "hidden_followed": "Cachés mais suivis",
+    "followed": "Suivis",
     "in_group": "Dans le groupe",
     "by_term": "Par terme",
     "search": "Recherche"

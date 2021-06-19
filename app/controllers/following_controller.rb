@@ -1,22 +1,25 @@
 class FollowingController < ApplicationController
+  include JwtProcessToken
+  respond_to :json
+  before_action :process_token
 
       # POST /projects or /projects.json
   def create
+    byebug
     @following = current_user.followings.build(following_params)
-    @following.user_id = current_user.id
-    @following.friend_id = params[:friend_id]
 
-    respond_to do |format|
-      if @following.save
-        format.json { render :show, status: :created, location: @following }
-      else
-        format.json { render json: @following.errors, status: :unprocessable_entity }
-      end
-      rescue ActiveRecord::RecordNotUnique
-        format.json { render json: ["We've already got one"], status: :unprocessable_entity }
-      
+    @following.user_id = @current_user_id
+
+    if @following.save
+      json_data = @following.to_json
+      render json: { status: "success", message: @following }
+    else
+      render json: { message: @following.errors, status: :unprocessable_entity }
     end
-  end
+    rescue ActiveRecord::RecordNotUnique
+      render json: { message: ["We've already got one"], status: :unprocessable_entity }
+    end
+
 
   def search
     searchFor = params[:searchFor]
@@ -27,19 +30,21 @@ class FollowingController < ApplicationController
     
     @usersFound = nil
 
-    if searchFor == 'new_friends'
+    if searchFor == 'new_people'
       if (searchTerms != "")
-        @usersFound = User.where.not(id:@followings.map(&:friend_id)).where.not("id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
+        @usersFound = User.where.not(id:@followings.map(&:followed_id)).where.not("id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
       else
-        @usersFound = User.where.not(id:@followings.map(&:friend_id)).where.not("id = ?", current_user.id)
+        @usersFound = User.where.not(id:@followings.map(&:followed_id)).where.not("id = ?", current_user.id)
       end
-    elsif searchFor == 'hidden_friends'
+    elsif searchFor == 'hidden_people'
 
-    elsif searchFor == 'current_friends'
+    elsif searchFor == 'hidden_followed'
+
+    elsif searchFor == 'followed'
       if (searchTerms != "")
-        @usersFound = User.where(id:@followings.map(&:friend_id)).where.not("id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
+        @usersFound = User.where(id:@followings.map(&:followed_id)).where.not("id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
       else
-        @usersFound = User.where(id:@followings.map(&:friend_id)).where.not("id = ?", current_user.id)
+        @usersFound = User.where(id:@followings.map(&:followed_id)).where.not("id = ?", current_user.id)
       end
     end
 
@@ -56,7 +61,7 @@ class FollowingController < ApplicationController
   private
 
     def following_params
-      params.permit(:user_id, :friendship_id)
+      params.permit(:followed_id)
     end
 
 end
