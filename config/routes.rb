@@ -2,8 +2,8 @@ Rails.application.routes.draw do
   
   devise_for :users, controllers: { registrations: "users/registrations", sessions: "users/sessions", passwords: "users/passwords" }
 
-  get 'friendship/create'
-  post 'friendship/search'
+  get 'following/create'
+  post 'following/search'
 
   resources :users, only: %i[show] do
     get :avatar, on: :member

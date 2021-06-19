@@ -98,7 +98,7 @@ export default {
             if (searchData.searchBy == searchByTerms[0])
                 searchData.searchBy = searchByTerms[1]
                 
-            securedAxiosInstance.post('/friendship/search', searchData)
+            securedAxiosInstance.post('/following/search', searchData)
                 .then(response => {
                     friendsData.value = response.data
                 })

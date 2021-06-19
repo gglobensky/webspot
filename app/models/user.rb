@@ -5,7 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
 
-  has_many :friendships
+  has_many :followings
   has_one :profile
 
   has_one_attached :avatar

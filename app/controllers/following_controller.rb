@@ -1,16 +1,16 @@
-class FriendshipController < ApplicationController
+class FollowingController < ApplicationController
 
       # POST /projects or /projects.json
   def create
-    @friendship = current_user.friendships.build(friendship_params)
-    @friendship.user_id = current_user.id
-    @friendship.friend_id = params[:friend_id]
+    @following = current_user.followings.build(following_params)
+    @following.user_id = current_user.id
+    @following.friend_id = params[:friend_id]
 
     respond_to do |format|
-      if @friendship.save
-        format.json { render :show, status: :created, location: @friendship }
+      if @following.save
+        format.json { render :show, status: :created, location: @following }
       else
-        format.json { render json: @friendship.errors, status: :unprocessable_entity }
+        format.json { render json: @following.errors, status: :unprocessable_entity }
       end
       rescue ActiveRecord::RecordNotUnique
         format.json { render json: ["We've already got one"], status: :unprocessable_entity }
@@ -23,23 +23,23 @@ class FriendshipController < ApplicationController
     searchBy = params[:searchBy]
     searchTerms = params[:searchTerms]
     
-    @friendships = current_user.friendships
+    @followings = current_user.followings
     
     @usersFound = nil
 
     if searchFor == 'new_friends'
       if (searchTerms != "")
-        @usersFound = User.where.not(id:@friendships.map(&:friend_id)).where.not("id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
+        @usersFound = User.where.not(id:@followings.map(&:friend_id)).where.not("id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
       else
-        @usersFound = User.where.not(id:@friendships.map(&:friend_id)).where.not("id = ?", current_user.id)
+        @usersFound = User.where.not(id:@followings.map(&:friend_id)).where.not("id = ?", current_user.id)
       end
     elsif searchFor == 'hidden_friends'
 
     elsif searchFor == 'current_friends'
       if (searchTerms != "")
-        @usersFound = User.where(id:@friendships.map(&:friend_id)).where.not("id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
+        @usersFound = User.where(id:@followings.map(&:friend_id)).where.not("id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
       else
-        @usersFound = User.where(id:@friendships.map(&:friend_id)).where.not("id = ?", current_user.id)
+        @usersFound = User.where(id:@followings.map(&:friend_id)).where.not("id = ?", current_user.id)
       end
     end
 
@@ -55,7 +55,7 @@ class FriendshipController < ApplicationController
 
   private
 
-    def friendship_params
+    def following_params
       params.permit(:user_id, :friendship_id)
     end
 

@@ -40,13 +40,13 @@ ActiveRecord::Schema.define(version: 2021_06_16_004141) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "friendships", force: :cascade do |t|
+  create_table "followings", force: :cascade do |t|
     t.integer "user_id"
     t.integer "friend_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["id", "user_id"], name: "index_friendships_on_id_and_user_id"
-    t.index ["user_id", "friend_id"], name: "index_friendships_on_user_id_and_friend_id", unique: true
+    t.index ["id", "user_id"], name: "index_followings_on_id_and_user_id"
+    t.index ["user_id", "friend_id"], name: "index_followings_on_user_id_and_friend_id", unique: true
   end
 
   create_table "profiles", force: :cascade do |t|
