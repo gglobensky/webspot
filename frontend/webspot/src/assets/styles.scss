@@ -1,0 +1,113 @@
+@import './sass/materialize.scss';
+@import './css/bootstrap.min.css';
+.gradient-default {
+    /* fallback for old browsers */
+    background: #0d47a1;
+  
+    /* Chrome 10-
+    @include md-registlabeler-theme("default", (
+    primary: md-get-palette-color(green, A200), // The primary color of your application
+    accent: md-get-palette-color(red, A200), // The accent or secondary color
+    theme: dark // This can be dark or light
+    ));25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to bottom, #64b5f6, #0d47a1);
+  
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to bottom, #64b5f6, #0d47a1)
+  }
+
+#toast-container {
+    min-width: 10%;
+    top: 0%;
+    right:50%;
+    transform: translateX(50%);
+}
+
+.text-overflow-ellipsis {
+    display: -webkit-box;
+    max-width: 500px;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.default-pale {
+    background-color: #64b5f6;
+}
+
+.default-dark {
+    background-color: #0d47a1;
+}
+
+.z-2000{
+    z-index: 2000;
+}
+.z-2500{
+    z-index: 2500;
+}
+
+@media only screen and (max-width: 576px){
+    .hidden-on-xs {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 576px) and (max-width: 767px){
+    .hidden-on-s {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 991px){
+    .hidden-on-md {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1199px){
+    .hidden-on-l {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 1200px){
+    .hidden-on-xl {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 576px) {
+    .vh-100-except-xs {
+        height: 100vh;
+    }
+}
+
+.nopadding {
+    padding: 0 !important;
+    margin: 0 !important;
+ }
+
+.vh-50 {
+    height: 50vh;
+}
+
+.vh-30 {
+    height: 30vh;
+}
+
+.vh-3 {
+    height: 3vh;
+}
+
+span.field-icon {
+    float: right;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.unclickable {
+    pointer-events: none
+}

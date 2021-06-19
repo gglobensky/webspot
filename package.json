@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "axios": "^0.21.1",
+    "vue-axios": "^3.2.4",
+    "vue-cookie": "^1.1.4",
+    "vue-material": "^1.0.0-beta-15",
+    "vue-router": "^3.5.1",
+    "vuex": "^3.6.2",
+    "vuex-persistedstate": "^4.0.0-beta.3"
+  }
+}
