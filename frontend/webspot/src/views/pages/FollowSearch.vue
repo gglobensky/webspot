@@ -1,10 +1,10 @@
 <template>
 <div>
     <div class="row">
-    <div class="col col-sm-5 col-md-4 col-lg-3 fixed-top hidden-on-xs mt-4">
+    <div class="col col-sm-5 col-md-4 col-lg-3 fixed-top hidden-on-xs mt-4 z-2000">
         <form @submit.prevent="searchPeople">
             <div class="card-panel grey lighten-5 z-depth-1" style="height: 87vh; position: relative; top: 62px;">
-                <form-field id="'username'" v-model="searchData.searchTerms" :invalidMessage="'shitdemarde'" :validation="'shitdemarde' == ''" label="Search" />
+                <form-field id="'username'" v-model="searchData.searchTerms" label="Search" />
                 <div class="input-field mb-5">
                     <select v-model="searchData.searchFor">
                         <option :disabled="group == searchForTerms[0]" :selected="group == searchForTerms[0]" v-for="group in searchForTerms" :key="group" :value="group">{{$t(group)}}</option>
@@ -29,13 +29,13 @@
         <div class="col col-12 col-sm-7 col-md-8 col-lg-9 nopadding">     
             
             <div v-for="(n, i) in peopleData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 vh-50 mb-1 pe-3">
-                <profile-card @addPeople="addPeople(peopleData[i])" imageSrc="https://randomuser.me/api/portraits/women/28.jpg">
+                <profile-card @hidePeople="hidePeople(peopleData[i].user.id)" @addPeople="addPeople(peopleData[i].user.id)" imageSrc="https://randomuser.me/api/portraits/women/28.jpg">
                     <template #image>
                         <img v-if="peopleData[i].url" :src="`http://localhost:3000/${peopleData[i].url}`" :alt="`${peopleData[i].user.username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
                         <img v-else :src="require('@/assets/images/user.png')" :alt="`${peopleData[i].user.username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
                     </template>
                     <template #header>
-                        {{peopleData[i].user.email}}
+                        {{peopleData[i].user.username}}
                     </template>
                     <template #body>
                         {{peopleData[i].profile.bio}}
@@ -76,6 +76,7 @@ export default {
             searchFor: searchForTerms[0],
             searchBy: searchByTerms[0]
         })
+        //reactive?
         const peopleData = ref({
             user: {
                 username:""
@@ -83,16 +84,20 @@ export default {
             url: "",
             profile: {}
         })
-        function addPeople(person){
-            console.log("id " + JSON.stringify(person.user.id))
-            securedAxiosInstance.post('/following/create', { followed_id: person.user.id })
+        const hiddenPeople = reactive([])
+        function addPeople(person_id){
+            securedAxiosInstance.post('/following/create', { followed_id: person_id })
                 .then(() => {
                     console.log("okay")
                 })
                 ,(error => console.log(error))
         }
-        function hidePeople(){
-
+        function hidePeople(person_id){
+            securedAxiosInstance.post('/following/hide', { hidden_person_id: person_id })
+                .then(() => {
+                    console.log("hidden created")
+                })
+                ,(error => console.log(error))
         }
         function searchPeople(){
             //0 is the placeholder, a disabled option
@@ -105,6 +110,14 @@ export default {
             securedAxiosInstance.post('/following/search', searchData)
                 .then(response => {
                     peopleData.value = response.data
+                    console.log(JSON.stringify(peopleData.value.length))
+                })
+                ,(error => console.log(error))
+        }
+        function getHiddenPeople(){
+            securedAxiosInstance.get('/following/hidden')
+                .then(response => {
+                    hiddenPeople.value = response.data.message
                 })
                 ,(error => console.log(error))
         }
@@ -114,6 +127,10 @@ export default {
             M.FormSelect.init(elems);
 
             searchPeople()
+            getHiddenPeople()
+
+            
+            //Make separate list for hidden and not hidden
         })
         onBeforeUnmount(() => {
             window.removeEventListener("scroll", onScroll)

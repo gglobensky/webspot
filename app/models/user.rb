@@ -6,6 +6,7 @@ class User < ApplicationRecord
 
 
   has_many :followings
+  has_many :hidden_people
   has_one :profile
 
   has_one_attached :avatar

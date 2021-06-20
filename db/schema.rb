@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_16_004141) do
+ActiveRecord::Schema.define(version: 2021_06_19_231736) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -47,6 +47,13 @@ ActiveRecord::Schema.define(version: 2021_06_16_004141) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["id", "user_id"], name: "index_followings_on_id_and_user_id"
     t.index ["user_id", "followed_id"], name: "index_followings_on_user_id_and_followed_id", unique: true
+  end
+
+  create_table "hidden_people", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "hidden_person_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "profiles", force: :cascade do |t|

@@ -20,7 +20,10 @@ export default {
             type: Boolean, 
             default: false
         },
-        validation: Boolean,
+        validation: {
+            type: Boolean, 
+            default: false
+        },
         validMessage: String,
         invalidMessage: String
     },
@@ -73,11 +76,13 @@ export default {
             }
         }
         function check() {
+            if (props.validation == true)
+            {
+                if (clearValidationClass())
+                    return
 
-            if (clearValidationClass())
-                return
-
-            switchValidationClass()
+                switchValidationClass()
+            }
 
         }
 

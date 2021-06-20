@@ -14,7 +14,7 @@
         <div class="row d-flex justify-content-center justify-content-sm-start align-items-start">
             <div class="col pt-5 ps-0 ps-sm-5 col-6 col-sm-4 col-md-4 col-lg-3 d-flex justify-content-center">
                 <label for="file-input">
-                    <img :src="avatarUrl" id="output" class="nopadding w-100 ms-4 mt-4 border border-secondary rounded-circle" alt="avatar" max-width max-height="250px" width="250px" role='button'>
+                    <img :src="avatarUrl" id="output" class="nopadding w-100 ms-4 mt-4 border border-secondary rounded-circle" alt="avatar" style="min-height: 250px; min-width: 250px; max-height:250px; max-width: 250px" role='button'>
                 </label>
                 <input type="file" accept=".jpg,.jpeg,.png" style="display:none" @change="onFileChange" id="file-input" >
             </div>
