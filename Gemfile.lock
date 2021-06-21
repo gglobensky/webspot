@@ -101,6 +101,7 @@ GEM
     mini_mime (1.0.3)
     minitest (5.14.4)
     msgpack (1.4.2)
+    mysql2 (0.5.3)
     nio4r (2.5.7)
     nokogiri (1.11.7-x86_64-linux)
       racc (~> 1.4)
@@ -156,7 +157,6 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sqlite3 (1.4.2)
     thor (1.1.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
@@ -180,11 +180,11 @@ DEPENDENCIES
   jwt_sessions
   listen (~> 3.3)
   mini_magick
+  mysql2 (~> 0.5)
   puma (~> 5.0)
   rack-cors
   rails (~> 6.1.3, >= 6.1.3.2)
   spring
-  sqlite3 (~> 1.4)
   tzinfo-data
 
 RUBY VERSION

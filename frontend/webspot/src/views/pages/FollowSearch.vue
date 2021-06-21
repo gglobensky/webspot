@@ -28,17 +28,17 @@
         </div>
         <div class="col col-12 col-sm-7 col-md-8 col-lg-9 nopadding">     
             
-            <div v-for="(n, i) in peopleData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 vh-50 mb-1 pe-3">
-                <profile-card @hidePeople="hidePeople(peopleData[i].user.id)" @addPeople="addPeople(peopleData[i].user.id)" imageSrc="https://randomuser.me/api/portraits/women/28.jpg">
+            <div v-for="(n, i) in displayedPeopleData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 vh-50 mb-1 pe-3">
+                <profile-card @hidePeople="hidePeople(displayedPeopleData[i].id)" @addPeople="addPeople(displayedPeopleData[i].id)" imageSrc="https://randomuser.me/api/portraits/women/28.jpg">
                     <template #image>
-                        <img v-if="peopleData[i].url" :src="`http://localhost:3000/${peopleData[i].url}`" :alt="`${peopleData[i].user.username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
-                        <img v-else :src="require('@/assets/images/user.png')" :alt="`${peopleData[i].user.username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
+                        <img v-if="displayedPeopleData[i].url" :src="`http://localhost:3000/${displayedPeopleData[i].url}`" :alt="`${displayedPeopleData[i].username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
+                        <img v-else :src="require('@/assets/images/user.png')" :alt="`${displayedPeopleData[i].username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
                     </template>
                     <template #header>
-                        {{peopleData[i].user.username}}
+                        {{displayedPeopleData[i].username}}
                     </template>
                     <template #body>
-                        {{peopleData[i].profile.bio}}
+                        {{displayedPeopleData[i].bio}}
                     </template>
                 </profile-card>
             </div>
@@ -69,7 +69,8 @@ export default {
         ]
         const searchByTerms = [
             "by_term",
-            "username"
+            "username",
+            "bio"
         ]
         const searchData = reactive({
             searchTerms: "",
@@ -77,27 +78,36 @@ export default {
             searchBy: searchByTerms[0]
         })
         //reactive?
-        const peopleData = ref({
+        const displayedPeopleData = ref({
             user: {
                 username:""
             },
             url: "",
             profile: {}
         })
-        const hiddenPeople = reactive([])
         function addPeople(person_id){
             securedAxiosInstance.post('/following/create', { followed_id: person_id })
                 .then(() => {
-                    console.log("okay")
+                    removeFromDisplayedPeopleData(person_id)
                 })
                 ,(error => console.log(error))
         }
         function hidePeople(person_id){
             securedAxiosInstance.post('/following/hide', { hidden_person_id: person_id })
                 .then(() => {
-                    console.log("hidden created")
+                    removeFromDisplayedPeopleData(person_id)
                 })
                 ,(error => console.log(error))
+        }
+        function removeFromDisplayedPeopleData(id){
+
+            for (var i = displayedPeopleData.value.length - 1; i >= 0; --i) {
+                console.log(JSON.stringify(displayedPeopleData.value))
+                if (displayedPeopleData.value[i].id == id) {
+                    displayedPeopleData.value.splice(i, 1);
+                    return
+                }
+            }
         }
         function searchPeople(){
             //0 is the placeholder, a disabled option
@@ -106,18 +116,10 @@ export default {
 
             if (searchData.searchBy == searchByTerms[0])
                 searchData.searchBy = searchByTerms[1]
-                
-            securedAxiosInstance.post('/following/search', searchData)
+
+            securedAxiosInstance.post('/following/search', { searchBy: searchData.searchBy, searchFor: searchData.searchFor, searchTerms: searchData.searchTerms? searchData.searchTerms.toLowerCase() : "" })
                 .then(response => {
-                    peopleData.value = response.data
-                    console.log(JSON.stringify(peopleData.value.length))
-                })
-                ,(error => console.log(error))
-        }
-        function getHiddenPeople(){
-            securedAxiosInstance.get('/following/hidden')
-                .then(response => {
-                    hiddenPeople.value = response.data.message
+                    displayedPeopleData.value = response.data
                 })
                 ,(error => console.log(error))
         }
@@ -127,10 +129,7 @@ export default {
             M.FormSelect.init(elems);
 
             searchPeople()
-            getHiddenPeople()
 
-            
-            //Make separate list for hidden and not hidden
         })
         onBeforeUnmount(() => {
             window.removeEventListener("scroll", onScroll)
@@ -144,7 +143,7 @@ export default {
             console.log("Dont forget infinite scroll " + e)
         }
 
-        return { peopleData, searchByTerms, searchForTerms, addPeople, hidePeople, searchPeople, searchData }
+        return { displayedPeopleData, searchByTerms, searchForTerms, addPeople, hidePeople, searchPeople, searchData }
     }
 
 }

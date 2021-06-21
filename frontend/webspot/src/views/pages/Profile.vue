@@ -22,7 +22,7 @@
                 <form-field id="'username'" :invalidMessage="errors.username" :validation="errors.username == ''" :label="$t('username')" v-model="state.user.username" />
                 <form-field id="'email'" :invalidMessage="errors.email" :validation="errors.email == ''" :label="$t('email')" v-model="state.user.email" />
                 <div class="vh-30">
-                    <form-area id="bio" :characterLimit="characterLimit" :invalidMessage="$t('too_many_chars')" :validation="profile.profile_attributes.bio.length <= characterLimit" :label="$t('bio')" v-model="profile.profile_attributes.bio" />
+                    <form-area id="bio" :characterLimit="characterLimit" :invalidMessage="$t('too_many_chars')" :validation="profile.profile_attributes.bio.length <= characterLimit" :label="$t('about_me')" v-model="profile.profile_attributes.bio" />
                 </div>
             </div>
             <div class="row">

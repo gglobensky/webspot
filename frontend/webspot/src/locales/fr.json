@@ -12,7 +12,7 @@
     "forgot_password": "Mot de passe oublié?",
     "email_sent": "Courriel envoyé",
     "username": "Nom d'utilisateur",
-    "bio": "À propos de moi...",
+    "about_me": "À propos de moi...",
     "update": "Actualiser",
     "too_many_chars": "Limite de caractères dépassée",
     "change_password": "Changez de mot de passe",
@@ -28,5 +28,6 @@
     "followed": "Suivis",
     "in_group": "Dans le groupe",
     "by_term": "Par terme",
+    "bio": "Bio",
     "search": "Recherche"
 }

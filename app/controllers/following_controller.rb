@@ -33,14 +33,6 @@ class FollowingController < ApplicationController
       render json: { message: ["Already hidden"], status: :unprocessable_entity }
     end
 
-    def hidden
-      @hidden_people = current_user.hidden_people.pluck(:hidden_person_id)
-
-      json_response = @hidden_people.to_json
-
-      render json: { status: "success", message: json_response }
-    end
-
   def search
     searchFor = params[:searchFor]
     searchBy = params[:searchBy]
@@ -49,25 +41,52 @@ class FollowingController < ApplicationController
     @followings = current_user.followings
     @hidden_people = current_user.hidden_people.pluck(:hidden_person_id)
     @usersFound = nil
+    @usersData = nil
+#I feel that below could be DRYer
 
     if searchFor == 'new_people'
-      @usersFound = User.where.not(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("Users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
+      if searchBy == 'bio'
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).pluck(:username, :bio, :blob_id, :id)
+      else
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').pluck(:username, :bio, :blob_id, :id)
+      end
     elsif searchFor == 'hidden_people'
-      @usersFound = User.where(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("Users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
+      if searchBy == 'bio'
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).pluck(:username, :bio, :blob_id, :id)
+      else
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').pluck(:username, :bio, :blob_id, :id)
+      end   
     elsif searchFor == 'hidden_followed'
-      @usersFound = User.where(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("Users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
+      if searchBy == 'bio'
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).pluck(:username, :bio, :blob_id, :id)
+      else
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').pluck(:username, :bio, :blob_id, :id)
+      end    
     elsif searchFor == 'followed'
-      @usersFound = User.where.not(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("Users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%')
-     
+      if searchBy == 'bio'
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).pluck(:username, :bio, :blob_id, :id)
+      else
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').pluck(:username, :bio, :blob_id, :id)
+      end   
     end
 
-    response = @usersFound.includes([:profile, :avatar_attachment])
+    response = @usersFound
     message = []
-    response.each do |user|
-      data = {user: user, profile: user.profile}
-      data[:url] = (rails_blob_path(user.avatar, disposition: "attachment", only_path: true)) if user.avatar.attached?
+
+    $i = 0
+    $num = response.count
+    
+    while $i < $num  do
+      data = {username: @usersFound[$i][0], bio: @usersFound[$i][1], id: @usersFound[$i][3]}
+      if (@usersFound[$i][2] != nil)
+        data[:url] = rails_blob_path(ActiveStorage::Blob.find(@usersFound[$i][2]))
+      else
+        data[:url] = nil
+      end
       message.push(data)
+       $i +=1
     end
+
     render json: message.to_json
   end
 
