@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   post 'following/hide'
   get 'following/hidden'
 
+  get 'tags/interests'
+
   resources :users, only: %i[show] do
     get :avatar, on: :member
     get :profile, on: :member

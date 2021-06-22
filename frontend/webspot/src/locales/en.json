@@ -29,6 +29,8 @@
   "in_group": "In group",
   "by_term": "By term",
   "bio": "Bio",
-  "search": "Search"
+  "search": "Search",
+  "followed_user": "Followed {user}",
+  "hidden_user": "Hidden {user}"
 
 }

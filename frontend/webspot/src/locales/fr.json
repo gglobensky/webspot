@@ -29,5 +29,7 @@
     "in_group": "Dans le groupe",
     "by_term": "Par terme",
     "bio": "Bio",
-    "search": "Recherche"
+    "search": "Recherche",
+    "followed_user": "{user} suivi(e)",
+    "hidden_user": "{user} cachée"
 }

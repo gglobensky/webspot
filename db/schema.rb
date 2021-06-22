@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_20_073252) do
+ActiveRecord::Schema.define(version: 2021_06_21_043818) do
 
   create_table "active_storage_attachments", charset: "utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -56,6 +56,21 @@ ActiveRecord::Schema.define(version: 2021_06_20_073252) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "interest_taggings", charset: "utf8mb4", force: :cascade do |t|
+    t.bigint "interest_tag_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["interest_tag_id"], name: "index_interest_taggings_on_interest_tag_id"
+    t.index ["user_id"], name: "index_interest_taggings_on_user_id"
+  end
+
+  create_table "interest_tags", charset: "utf8mb4", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "profiles", charset: "utf8mb4", force: :cascade do |t|
     t.integer "user_id"
     t.text "bio", default: "''"
@@ -81,4 +96,6 @@ ActiveRecord::Schema.define(version: 2021_06_20_073252) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "interest_taggings", "interest_tags"
+  add_foreign_key "interest_taggings", "users"
 end

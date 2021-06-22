@@ -7,14 +7,15 @@ class UsersController < ApplicationController
       end
 
       def profile
-        profile = current_user.profile
-        msg = { :status => "success", :message => profile }
+        user = current_user
+        profile = user.profile
+        msg = { :status => "success", :profile => profile, :avatar => avatar_url, :interest_tag_list => user.interest_tag_list }
         render :json => msg # don't do msg.to_json
       end
 
       protected
 
-      def avatar_urls
+      def avatar_url
         if current_user
           rails_blob_path(current_user.avatar, disposition: "attachment", only_path: true) if current_user.avatar.attached?
         elsif
@@ -24,7 +25,7 @@ class UsersController < ApplicationController
     
 
       def user_params
-          params.require(:user).permit(:username, :email, :password, profile_attributes: [:id, :user_id, :bio, :date_of_birth])
+          params.require(:user).permit(:username, :email, :password, :interest_tag_list, profile_attributes: [:id, :user_id, :bio, :date_of_birth])
       end
       
 

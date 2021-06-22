@@ -1,5 +1,6 @@
 <template>
 <div>
+    <Toast ref="toastRef" :htmlContent="toastHtmlContent" />
     <div class="row">
     <div class="col col-sm-5 col-md-4 col-lg-3 fixed-top hidden-on-xs mt-4 z-2000">
         <form @submit.prevent="searchPeople">
@@ -29,7 +30,7 @@
         <div class="col col-12 col-sm-7 col-md-8 col-lg-9 nopadding">     
             
             <div v-for="(n, i) in displayedPeopleData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 vh-50 mb-1 pe-3">
-                <profile-card @hidePeople="hidePeople(displayedPeopleData[i].id)" @addPeople="addPeople(displayedPeopleData[i].id)" imageSrc="https://randomuser.me/api/portraits/women/28.jpg">
+                <profile-card @hidePeople="hidePeople(displayedPeopleData[i].id, displayedPeopleData[i].username)" @addPeople="addPeople(displayedPeopleData[i].id, displayedPeopleData[i].username)" imageSrc="https://randomuser.me/api/portraits/women/28.jpg">
                     <template #image>
                         <img v-if="displayedPeopleData[i].url" :src="`http://localhost:3000/${displayedPeopleData[i].url}`" :alt="`${displayedPeopleData[i].username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
                         <img v-else :src="require('@/assets/images/user.png')" :alt="`${displayedPeopleData[i].username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
@@ -51,15 +52,19 @@
 import { securedAxiosInstance } from '../../backend/axios'
 import ProfileCard from '../components/ProfileCard.vue'
 import FormField from '../components/FormField.vue'
+import Toast from '../components/Toast.vue'
 import { onBeforeUnmount, onMounted, ref, reactive } from 'vue'
 import M from 'materialize-css'
+import { useI18n } from 'vue-i18n'
 export default {
     name:'follow-search',
     components:{
         ProfileCard,
-        FormField
+        FormField,
+        Toast
     },
     setup(){
+        const { t } = useI18n()
         const searchForTerms = [
             "in_group",
             "new_people",
@@ -85,17 +90,23 @@ export default {
             url: "",
             profile: {}
         })
-        function addPeople(person_id){
+        const toastRef = ref()
+        const toastHtmlContent = ref("")
+        function addPeople(person_id, person_username){
             securedAxiosInstance.post('/following/create', { followed_id: person_id })
                 .then(() => {
                     removeFromDisplayedPeopleData(person_id)
+                    toastHtmlContent.value = t("followed_user", { user: person_username})
+                    toastRef.value.show()
                 })
                 ,(error => console.log(error))
         }
-        function hidePeople(person_id){
+        function hidePeople(person_id, person_username){
             securedAxiosInstance.post('/following/hide', { hidden_person_id: person_id })
                 .then(() => {
                     removeFromDisplayedPeopleData(person_id)
+                    toastHtmlContent.value = t("hidden_user", { user: person_username})
+                    toastRef.value.show()
                 })
                 ,(error => console.log(error))
         }
@@ -143,7 +154,7 @@ export default {
             console.log("Dont forget infinite scroll " + e)
         }
 
-        return { displayedPeopleData, searchByTerms, searchForTerms, addPeople, hidePeople, searchPeople, searchData }
+        return { toastHtmlContent, toastRef, displayedPeopleData, searchByTerms, searchForTerms, addPeople, hidePeople, searchPeople, searchData }
     }
 
 }

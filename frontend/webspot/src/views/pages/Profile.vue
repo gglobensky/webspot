@@ -10,6 +10,7 @@
         </template>
         <template #footer><button @click="updatePassword()" class="waves-effect waves-light btn">{{$t('update')}}</button></template>
     </Modal>
+
     <form @submit.prevent="updateProfile()">
         <div class="row d-flex justify-content-center justify-content-sm-start align-items-start">
             <div class="col pt-5 ps-0 ps-sm-5 col-6 col-sm-4 col-md-4 col-lg-3 d-flex justify-content-center">
@@ -21,8 +22,9 @@
             <div class="col col-8 col-sm-6 offset-sm-1 col-md-5 offset-md-2 mt-5">
                 <form-field id="'username'" :invalidMessage="errors.username" :validation="errors.username == ''" :label="$t('username')" v-model="state.user.username" />
                 <form-field id="'email'" :invalidMessage="errors.email" :validation="errors.email == ''" :label="$t('email')" v-model="state.user.email" />
+                <div class="chips chips-autocomplete"></div>
                 <div class="vh-30">
-                    <form-area id="bio" :characterLimit="characterLimit" :invalidMessage="$t('too_many_chars')" :validation="profile.profile_attributes.bio.length <= characterLimit" :label="$t('about_me')" v-model="profile.profile_attributes.bio" />
+                    <form-area id="bio" :characterLimit="characterLimit" :invalidMessage="$t('too_many_chars')" :validation="state.user.profile_attributes.bio.length <= characterLimit" :label="$t('about_me')" v-model="state.user.profile_attributes.bio" />
                 </div>
             </div>
             <div class="row">
@@ -51,7 +53,7 @@ import Toast from '../components/Toast.vue'
 import M from 'materialize-css'
 import router from '../../router'
 import { DirectUpload } from "@rails/activestorage"
-import { getAvatarUrl } from '../../helper/serverRequests'
+import { API_URL } from '../../helper/serverRequests'
 import { capitalizeFirstLetter } from '../../helper/helperMethods'
 import { useI18n } from 'vue-i18n'
 export default {
@@ -64,7 +66,6 @@ export default {
     setup(){
         const { t } = useI18n()
         let updatedAvatar = false
-        const user = store.state.authUser
         let avatar = {}
         const characterLimit = 120
         const avatarUrl = ref("")
@@ -82,35 +83,35 @@ export default {
                 email:"",
                 password:"",
                 password_confirmation:"",
-                current_password:""
+                current_password:"",
+                interest_tag_list:"",
+                profile_attributes:{
+                    bio:""
+                }
             }
         })
-        const profile = reactive({
-            profile_attributes:{
-                bio:""
-            }
-        }) 
         const passwordChangeModalRef = ref()
         const toastRef = ref()
         const toastHtmlContent = ref("")
-
+        let autocompleteData = {}
+        let chipsData = []
+        let instances = []
         onMounted(() => {
-        profile.profile_attributes.bio = ""
-            M.CharacterCounter.init(document.querySelectorAll('.has-character-counter'));
+            M.CharacterCounter.init(document.querySelectorAll('.has-character-counter'));//is it useless?
 
-            getAvatarUrl().then(response => {
-                avatarUrl.value = response
-                if (!avatarUrl.value){
-                    avatarUrl.value = require('@/assets/images/user.png')
-                }
-            })
-
-            state.user = user
+            getInterestTags()
+            state.user = store.state.authUser
             
-
-            securedAxiosInstance.get(`/users/${user.id}/profile`, state)
+            securedAxiosInstance.get(`/users/${state.user.id}/profile`)
                 .then(response => {
-                    profile.profile_attributes = response.data.message
+                    state.user.profile_attributes = response.data.profile
+                    avatarUrl.value = API_URL + response.data.avatar
+                    state.user.interest_tag_list = response.data.interest_tag_list
+                    setupInterestTagList()
+
+                    if (!avatarUrl.value){
+                        avatarUrl.value = require('@/assets/images/user.png')
+                    }
                 }), error => {console.log(error)}
               
         })
@@ -123,9 +124,9 @@ export default {
 
             let patchedUser = {}
 
-            patchedUser.password = user.password
-            patchedUser.password_confirmation = user.password_confirmation
-            patchedUser.current_password = user.current_password
+            patchedUser.password = state.user.password
+            patchedUser.password_confirmation = state.user.password_confirmation
+            patchedUser.current_password = state.user.current_password
 
             securedAxiosInstance.put(`/users`, { user: patchedUser })
             .then(response => {
@@ -133,7 +134,7 @@ export default {
                         
                     const current_errors = JSON.parse(response.data.message)
                     errors.password = current_errors.password[0]
-                    errors.password_confirmation = current_errors.password_confirmation[0]
+                    errors.password_confirgetTagsmation = current_errors.password_confirmation[0]
                     errors.current_password = capitalizeFirstLetter(current_errors.current_password[0])
 
                     return
@@ -150,6 +151,63 @@ export default {
             }
 
         }
+        function getInterestTags(){
+            securedAxiosInstance.get('/tags/interests')
+            .then(response => {
+                const tags = response.data.message
+                
+                const len = tags.length
+                for (let i = 0; i < len; i++){
+                    autocompleteData[tags[i].name] = null
+                }
+
+            }), error => {
+                console.log(error)
+            }
+        }
+        function addInterestTagListToUser(){
+            const len = instances[0].$chips.length;
+            state.user['interest_tag_list'] = ""
+
+            const lastIndex = len - 1
+            state.user.interest_tag_list = ""
+                
+            for (let i = 0; i < len; i++){
+                state.user.interest_tag_list += instances[0].$chips[i].firstChild.data
+
+                if (i != lastIndex){
+                    state.user.interest_tag_list += ', '
+                }
+            }
+
+        }
+        function setupInterestTagList(){
+            addInterestTagListAsChips()
+            const elems = document.querySelectorAll('.chips');
+ 
+            instances = M.Chips.init(elems, {
+                placeholder: "Interests",
+                data: chipsData,
+                autocompleteOptions: {
+                    data: autocompleteData,
+                    limit: Infinity,
+                    minLength: 1
+                }
+            });
+        }
+        function addInterestTagListAsChips(){
+            const userInterests = state.user.interest_tag_list.split(', ')
+            
+            if (userInterests[0] != ""){
+                const len = userInterests.length
+                for (let i = 0; i < len; i++){
+                    chipsData.push({ tag: userInterests[i]})
+                }
+            }
+            else{
+                chipsData = []
+            }
+        }
         function clearPasswordFields(){
             state.user.password = ""
             state.user.password_confirmation = ""
@@ -163,21 +221,20 @@ export default {
             if (!files.length)
                 return;
             avatar = files[0]
-            
+
             updatedAvatar = true
             avatarUrl.value = URL.createObjectURL(avatar)
         }
         function updateProfile(){
 
-          user.profile_attributes = profile.profile_attributes
+          addInterestTagListToUser()
             /*if (!this.validateEmail(this.current_user.email)){
                 this.errors.email = "Invalid email"
 
                 return
             }*/
             if (updatedAvatar){
-                const url = 'http://localhost:3000/rails/active_storage/direct_uploads'
-
+                const url = `${API_URL}/rails/active_storage/direct_uploads`
 
                 const upload = new DirectUpload(avatar, url,  {
                     directUploadWillCreateBlobWithXHR: (xhr) => {
@@ -185,39 +242,37 @@ export default {
                     }})
 
                 upload.create((error, blob) => {
-
                     if (error){
                         console.log(error)
                     }
                     else {
-                        user.avatar = blob.signed_id
-                        securedAxiosInstance.put(`/users`, { user: user })
-                        .then(() => {
-                            store.commit('setAuthUser', user)
-                            router.push('/Home')
-                        }), error => {console.log(error)}
-                    }
-                    
+                        state.user.avatar = blob.signed_id
+                        putProfileDataToServer()
+                            .then(() => router.push('/Home'))
+                            , error => console.log(error)
+                    }   
                 })
             } else {
-                securedAxiosInstance.put(`/users`, { user: user })
-                .then(() => {
-                    store.commit('setAuthUser', user)
-                  router.push('/Home')
-                }), error => {console.log(error)}
+                putProfileDataToServer()
+                    .then(() => router.push('/Home'))
+                    , error => console.log(error)
             }
 
         }
-
+        function putProfileDataToServer(){
+            return new Promise(resolve => {
+            securedAxiosInstance.put(`/users`, state)
+                .then(() => {
+                    store.commit('setAuthUser', state.user)
+                  resolve()
+                }), error => {resolve(error)}
+            })
+        }
         function openPasswordModal(){
             passwordChangeModalRef.value.open()
         }
 
-        return { toastRef, toastHtmlContent, passwordChangeModalRef, openPasswordModal, clearPasswordFields, updatePassword, characterLimit, state, profile, errors, avatarUrl, onFileChange, updateProfile }
+        return { toastRef, toastHtmlContent, passwordChangeModalRef, openPasswordModal, clearPasswordFields, updatePassword, characterLimit, state, errors, avatarUrl, onFileChange, updateProfile }
     }
 }
 </script>
-
-<style>
-
-</style>
