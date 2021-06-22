@@ -22,7 +22,7 @@
             <div class="col col-8 col-sm-6 offset-sm-1 col-md-5 offset-md-2 mt-5">
                 <form-field id="'username'" :invalidMessage="errors.username" :validation="errors.username == ''" :label="$t('username')" v-model="state.user.username" />
                 <form-field id="'email'" :invalidMessage="errors.email" :validation="errors.email == ''" :label="$t('email')" v-model="state.user.email" />
-                <div class="chips chips-autocomplete"></div>
+                <form-chips :placeholder="$t('interests')" :initialData="interestTagString" :autocompleteData="autocompleteData" v-model="state.user.interest_tag_list" />
                 <div class="vh-30">
                     <form-area id="bio" :characterLimit="characterLimit" :invalidMessage="$t('too_many_chars')" :validation="state.user.profile_attributes.bio.length <= characterLimit" :label="$t('about_me')" v-model="state.user.profile_attributes.bio" />
                 </div>
@@ -50,6 +50,7 @@ import FormField from '../components/FormField.vue'
 import FormArea from '../components/FormArea.vue'
 import Modal from '../components/Modal.vue'
 import Toast from '../components/Toast.vue'
+import FormChips from '../components/FormChips.vue'
 import M from 'materialize-css'
 import router from '../../router'
 import { DirectUpload } from "@rails/activestorage"
@@ -61,7 +62,8 @@ export default {
         FormField,
         FormArea,
         Modal,
-        Toast
+        Toast,
+        FormChips
     },
     setup(){
         const { t } = useI18n()
@@ -93,10 +95,11 @@ export default {
         const passwordChangeModalRef = ref()
         const toastRef = ref()
         const toastHtmlContent = ref("")
-        let autocompleteData = {}
-        let chipsData = []
-        let instances = []
+
+        const autocompleteData = reactive({})
+        const interestTagString = ref("")
         onMounted(() => {
+            //This should be in component
             M.CharacterCounter.init(document.querySelectorAll('.has-character-counter'));//is it useless?
 
             getInterestTags()
@@ -106,9 +109,9 @@ export default {
                 .then(response => {
                     state.user.profile_attributes = response.data.profile
                     avatarUrl.value = API_URL + response.data.avatar
-                    state.user.interest_tag_list = response.data.interest_tag_list
-                    setupInterestTagList()
 
+                    interestTagString.value = response.data.interest_tag_list
+                    console.log(interestTagString)
                     if (!avatarUrl.value){
                         avatarUrl.value = require('@/assets/images/user.png')
                     }
@@ -155,57 +158,14 @@ export default {
             securedAxiosInstance.get('/tags/interests')
             .then(response => {
                 const tags = response.data.message
-                
+
                 const len = tags.length
                 for (let i = 0; i < len; i++){
                     autocompleteData[tags[i].name] = null
                 }
-
+                
             }), error => {
                 console.log(error)
-            }
-        }
-        function addInterestTagListToUser(){
-            const len = instances[0].$chips.length;
-            state.user['interest_tag_list'] = ""
-
-            const lastIndex = len - 1
-            state.user.interest_tag_list = ""
-                
-            for (let i = 0; i < len; i++){
-                state.user.interest_tag_list += instances[0].$chips[i].firstChild.data
-
-                if (i != lastIndex){
-                    state.user.interest_tag_list += ', '
-                }
-            }
-
-        }
-        function setupInterestTagList(){
-            addInterestTagListAsChips()
-            const elems = document.querySelectorAll('.chips');
- 
-            instances = M.Chips.init(elems, {
-                placeholder: "Interests",
-                data: chipsData,
-                autocompleteOptions: {
-                    data: autocompleteData,
-                    limit: Infinity,
-                    minLength: 1
-                }
-            });
-        }
-        function addInterestTagListAsChips(){
-            const userInterests = state.user.interest_tag_list.split(', ')
-            
-            if (userInterests[0] != ""){
-                const len = userInterests.length
-                for (let i = 0; i < len; i++){
-                    chipsData.push({ tag: userInterests[i]})
-                }
-            }
-            else{
-                chipsData = []
             }
         }
         function clearPasswordFields(){
@@ -227,7 +187,6 @@ export default {
         }
         function updateProfile(){
 
-          addInterestTagListToUser()
             /*if (!this.validateEmail(this.current_user.email)){
                 this.errors.email = "Invalid email"
 
@@ -257,7 +216,6 @@ export default {
                     .then(() => router.push('/Home'))
                     , error => console.log(error)
             }
-
         }
         function putProfileDataToServer(){
             return new Promise(resolve => {
@@ -272,7 +230,7 @@ export default {
             passwordChangeModalRef.value.open()
         }
 
-        return { toastRef, toastHtmlContent, passwordChangeModalRef, openPasswordModal, clearPasswordFields, updatePassword, characterLimit, state, errors, avatarUrl, onFileChange, updateProfile }
+        return { autocompleteData, interestTagString, toastRef, toastHtmlContent, passwordChangeModalRef, openPasswordModal, clearPasswordFields, updatePassword, characterLimit, state, errors, avatarUrl, onFileChange, updateProfile }
     }
 }
 </script>

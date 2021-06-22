@@ -27,6 +27,7 @@ export default {
     },
     emits: ['update:modelValue'],
     methods: {
+        //useless?
         changePageTitle(title) {
             this.$emit('update:modelValue', title) // previously was `this.$emit('input', title)`
         }

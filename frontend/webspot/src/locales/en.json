@@ -31,6 +31,7 @@
   "bio": "Bio",
   "search": "Search",
   "followed_user": "Followed {user}",
-  "hidden_user": "Hidden {user}"
+  "hidden_user": "Hidden {user}",
+  "interests": "Interests"
 
 }
