@@ -51,7 +51,7 @@
                         {{displayedPeopleData[i].username}}
                     </template>
                     <template #body>
-                        <div v-if="true">
+                        <div v-if="searchData.searchBy != 'interests'">
                             <div class="col col-12 mt-2 d-flex justify-content-center" style="height: 16vh;">
                                 <p class="text-center text-overflow-ellipsis-5l">
                                     {{displayedPeopleData[i].bio}}
@@ -104,7 +104,8 @@ export default {
         ]
         const searchByTerms = [
             "username",
-            "bio"
+            "bio",
+            "interests"
         ]
         const searchData = reactive({
             searchTerms: "",

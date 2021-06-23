@@ -104,19 +104,19 @@ export default {
 
             getInterestTags()
             state.user = store.state.authUser
-            
+
             securedAxiosInstance.get(`/users/${state.user.id}/profile`)
                 .then(response => {
                     state.user.profile_attributes = response.data.profile
                     avatarUrl.value = API_URL + response.data.avatar
 
                     interestTagString.value = response.data.interest_tag_list
-                    console.log(interestTagString)
-                    if (!avatarUrl.value){
+
+                    if (!response.data.avatar){
                         avatarUrl.value = require('@/assets/images/user.png')
                     }
                 }), error => {console.log(error)}
-              
+
         })
         function updatePassword(){
             //Since passwords are updated via a popup over the rest

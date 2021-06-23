@@ -4,7 +4,7 @@
 
 <script>
 import M from 'materialize-css'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 export default {
     props: {
         initialData: {
@@ -28,6 +28,9 @@ export default {
             addTagListAsChips()
             setupInterestTagList()
         }
+        onMounted(() => {
+            init()
+        })
         function addTagListAsChips(){
             const tags = returnValue.value.split(', ')
 
@@ -55,7 +58,6 @@ export default {
                 }
             }
             emit('update:modelValue', returnValue.value)
-            console.log(returnValue.value)
         }
         function setupInterestTagList(){
             const elems = document.querySelectorAll('.chips');

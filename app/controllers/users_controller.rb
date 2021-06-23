@@ -3,7 +3,7 @@ class UsersController < ApplicationController
     before_action :authenticate_user!
 
       def avatar
-        render :json => { :status => "success", :url => avatar_urls}
+        render :json => { :status => "success", :url => avatar_url}
       end
 
       def profile
