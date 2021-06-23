@@ -46,27 +46,27 @@ class FollowingController < ApplicationController
 
     if searchFor == 'new_people'
       if searchBy == 'bio'
-        @usersFound = User.left_outer_joins(:avatar_attachment).left_outer_joins(:interest_tag_list).joins(:profile).where.not(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).pluck(:username, :bio, :blob_id, :id)
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).left_outer_joins(:interest_tags).group(:username).pluck(:username, :bio, :blob_id, :id, Arel.sql("GROUP_CONCAT(interest_tags.name SEPARATOR ', ')"))
       elsif searchBy == 'username'
-        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').pluck(:username, :bio, :blob_id, :id)
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').left_outer_joins(:interest_tags).group(:username).pluck(:username, :bio, :blob_id, :id, Arel.sql("GROUP_CONCAT(interest_tags.name SEPARATOR ', ')"))
       end
     elsif searchFor == 'hidden_people'
       if searchBy == 'bio'
-        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).pluck(:username, :bio, :blob_id, :id)
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).left_outer_joins(:interest_tags).group(:username).pluck(:username, :bio, :blob_id, :id, Arel.sql("GROUP_CONCAT(interest_tags.name SEPARATOR ', ')"))
       elsif searchBy == 'username'
-        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').pluck(:username, :bio, :blob_id, :id)
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where.not(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').left_outer_joins(:interest_tags).group(:username).pluck(:username, :bio, :blob_id, :id, Arel.sql("GROUP_CONCAT(interest_tags.name SEPARATOR ', ')"))
       end   
     elsif searchFor == 'hidden_followed'
       if searchBy == 'bio'
-        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).pluck(:username, :bio, :blob_id, :id)
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).left_outer_joins(:interest_tags).group(:username).pluck(:username, :bio, :blob_id, :id, Arel.sql("GROUP_CONCAT(interest_tags.name SEPARATOR ', ')"))
       elsif searchBy == 'username'
-        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').pluck(:username, :bio, :blob_id, :id)
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').left_outer_joins(:interest_tags).group(:username).pluck(:username, :bio, :blob_id, :id, Arel.sql("GROUP_CONCAT(interest_tags.name SEPARATOR ', ')"))
       end    
     elsif searchFor == 'followed'
       if searchBy == 'bio'
-        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).pluck(:username, :bio, :blob_id, :id)
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where('MATCH (bio) AGAINST (? IN BOOLEAN MODE)', searchTerms).left_outer_joins(:interest_tags).group(:username).pluck(:username, :bio, :blob_id, :id, Arel.sql("GROUP_CONCAT(interest_tags.name SEPARATOR ', ')"))
       elsif searchBy == 'username'
-        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').pluck(:username, :bio, :blob_id, :id)
+        @usersFound = User.left_outer_joins(:avatar_attachment).joins(:profile).where.not(id: @hidden_people).where(id:@followings.map(&:followed_id)).where.not("users.id = ?", current_user.id).where(searchBy + ' LIKE ?', searchTerms + '%').left_outer_joins(:interest_tags).group(:username).pluck(:username, :bio, :blob_id, :id, Arel.sql("GROUP_CONCAT(interest_tags.name SEPARATOR ', ')"))
       end   
     end
 
@@ -77,7 +77,7 @@ class FollowingController < ApplicationController
     $num = response.count
     
     while $i < $num  do
-      data = {username: @usersFound[$i][0], bio: @usersFound[$i][1], id: @usersFound[$i][3]}
+      data = {username: @usersFound[$i][0], bio: @usersFound[$i][1], id: @usersFound[$i][3], interest_tag_list: @usersFound[$i][4]}
       if (@usersFound[$i][2] != nil)
         data[:url] = rails_blob_path(ActiveStorage::Blob.find(@usersFound[$i][2]))
       else

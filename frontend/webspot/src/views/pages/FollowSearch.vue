@@ -61,7 +61,7 @@
                         <div v-else>
                             <div class="col col-12 mt-2 d-flex justify-content-start" style="height: 8vh;">
                                 <p class="text-center text-overflow-ellipsis-2l">
-                                    Interests: placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder
+                                    Interests: {{displayedPeopleData[i].interest_tag_list}}
                                 </p>
                             </div>               
                             <div class="col col-12 d-flex justify-content-start" style="height: 8vh;">
