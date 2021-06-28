@@ -10,12 +10,11 @@
         <div class="vh-50 hidden-on-s hidden-on-md hidden-on-l hidden-on-xl" />
         <div class="container w-100 nopadding">
           <div class="col-sm-9 col-md-8">
-            <div class="input-field mx-5">
-              <input v-model="state.user.email" id="email" type="text" class="validate">
-              <label for="email">{{$t('email')}}</label>
+            <div class="mx-5">
+              <form-field :id="'email'" :hasShowPasswordButton="false" :label="$t('email')" v-model="state.user.email" />
             </div>
-            <div class="input-field mx-5">
-              <form-field id="'password'" :hasShowPasswordButton="true" :invalidMessage="errors" :validation="isValid" :label="$t('password')" v-model="state.user.password" />
+            <div class="mx-5">
+              <form-field :id="'password'" :hasShowPasswordButton="true" :invalidMessage="errors" :validation="isValid" :label="$t('password')" v-model="state.user.password" />
             </div>
           </div>
           <div class="col col-12 ps-5">
@@ -55,7 +54,7 @@ export default {
   setup(){
     const toastRef = ref()
     const toastHtmlContent = ref("")
-    const errors = ref("")
+    const errors = ref({})
     const isValid = ref(true)
     const state = reactive({
         user:{
@@ -78,6 +77,8 @@ export default {
       localStorage.csrf = response.data.token
       store.commit('setIsLoggedIn', true)
       store.commit('setAuthUser', response.data.user)
+      store.commit('setInterestTags', response.data.interest_tag_list)
+      store.commit('setTalentTags', response.data.talent_tag_list)
 
       getAvatarUrl().then(() => router.push('/Home'))
     }
@@ -85,8 +86,10 @@ export default {
       isValid.value = false;
       errors.value = error.data.message
 
-      delete localStorage.csrf
-      store.commit('setIsLoggedIn', false)
+      console.log(errors.value)
+
+      // delete localStorage.csrf
+      // store.commit('setIsLoggedIn', false)
     }
     function recoverPassword () {
 

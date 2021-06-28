@@ -70,8 +70,13 @@ fr:
         user:
           attributes:
             email:
-              taken: "Courriel déjà en cours d'utilisation"
+              taken: "Le courriel déjà en cours d'utilisation"
+              blank: "Le courriel ne peut être vide"
             password:
-              too_short: "Mot de passe trop court"
+              too_short: "Le mot de passe est trop court"
+              blank: "Le mot de passe ne peut être vide"
             password_confirmation:
               confirmation: "Les mots de passes ne correspondent pas"
+            username:
+              blank: "Le nom d'utilisateur ne peut être vide"
+              taken: "Le nom d'utilisateur est déjà en cours d'utilisation"

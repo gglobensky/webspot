@@ -31,7 +31,11 @@
   "bio": "Bio",
   "search": "Search",
   "followed_user": "Followed {user}",
+  "unfollowed_user": "Unfollowed {user}",
   "hidden_user": "Hidden {user}",
-  "interests": "Interests"
+  "unhidden_user": "Unhidden {user}",
+  "interests": "Interests",
+  "talents": "Talents",
+  "none": "None"
 
 }

@@ -15,7 +15,8 @@ before_action :process_token
 
   protected
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:account_update, keys: [:avatar, :username, :interest_tag_list, profile_attributes: [:id, :user_id, :bio, :date_of_birth]])
+    devise_parameter_sanitizer.permit(:account_update, keys: [:avatar, :username, :interest_tag_list, :talent_tag_list, profile_attributes: [:id, :user_id, :bio, :date_of_birth]])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:username])
   end
 
   def current_user

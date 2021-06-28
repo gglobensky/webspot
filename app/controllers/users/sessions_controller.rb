@@ -14,7 +14,7 @@ class Users::SessionsController < Devise::SessionsController
   
     if user && user.valid_password?(sign_in_params[:password])
       token = user.generate_jwt.to_json
-      render json: { :status => "success", token: token, user: user }
+      render json: { :status => "success", token: token, user: user, interest_tag_list: user.interest_tag_list, talent_tag_list: user.talent_tag_list }
     else
       password_error
     end

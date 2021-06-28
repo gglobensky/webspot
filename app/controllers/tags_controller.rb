@@ -7,4 +7,9 @@ class TagsController < ApplicationController
         message = InterestTag.all.as_json(only: [:name])
         render json: { status: 'success', message: message }
     end
+
+    def talents
+        message = TalentTag.all.as_json(only: [:name])
+        render json: { status: 'success', message: message }
+    end
 end

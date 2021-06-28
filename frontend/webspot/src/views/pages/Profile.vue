@@ -1,15 +1,16 @@
 <template>
 <div>
     <Toast ref="toastRef" :htmlContent="toastHtmlContent" />
-    <Modal id="passwordChangeModal" ref="passwordChangeModalRef" :onCloseEnd="clearPasswordFields">
-        <template #header>{{$t('change_password')}}</template>
-        <template #body>
-            <form-field :hasShowPasswordButton="true" id="'password'" :invalidMessage="errors.password" :validation="errors.password == ''" :label="$t('password')" v-model="state.user.password" />
-            <form-field :hasShowPasswordButton="true" id="'confirmation'" :invalidMessage="errors.password_confirmation" :validation="errors.password_confirmation == ''" :label="$t('confirmation')" v-model="state.user.password_confirmation" />
-            <form-field :hasShowPasswordButton="true" id="'current_password'" :invalidMessage="errors.current_password" :validation="errors.current_password == ''" :label="$t('current_password')" v-model="state.user.current_password" />
-        </template>
-        <template #footer><button @click="updatePassword()" class="waves-effect waves-light btn">{{$t('update')}}</button></template>
-    </Modal>
+    <form @submit.prevent="updatePassword()">
+        <Modal width="20vw" minWidth="300px" id="passwordChangeModal" ref="passwordChangeModalRef" :onCloseEnd="clearPasswordFields">
+            <template #header>{{$t('change_password')}}</template>
+            <template #body>
+                <form-field :hasShowPasswordButton="true" id="'password'" :invalidMessage="errors.password" :validation="errors.password == ''" :label="$t('password')" v-model="state.user.password" />
+                <form-field :hasShowPasswordButton="true" id="'current_password'" :invalidMessage="errors.current_password" :validation="errors.current_password == ''" :label="$t('current_password')" v-model="state.user.current_password" />
+            </template>
+            <template #footer><button class="waves-effect waves-light btn">{{$t('update')}}</button></template>
+        </Modal>
+    </form>
 
     <form @submit.prevent="updateProfile()">
         <div class="row d-flex justify-content-center justify-content-sm-start align-items-start">
@@ -22,7 +23,8 @@
             <div class="col col-8 col-sm-6 offset-sm-1 col-md-5 offset-md-2 mt-5">
                 <form-field id="'username'" :invalidMessage="errors.username" :validation="errors.username == ''" :label="$t('username')" v-model="state.user.username" />
                 <form-field id="'email'" :invalidMessage="errors.email" :validation="errors.email == ''" :label="$t('email')" v-model="state.user.email" />
-                <form-chips :placeholder="$t('interests')" :initialData="interestTagString" :autocompleteData="autocompleteData" v-model="state.user.interest_tag_list" />
+                <form-chips class="mb-5" :unique_id="'interests'" :placeholder="$t('interests')" :initialData="interestTagString" :autocompleteData="autocompleteInterestTagData.value" v-model="state.user.interest_tag_list" />
+                <form-chips class="mb-5" :unique_id="'talents'" :placeholder="$t('talents')" :initialData="talentTagString" :autocompleteData="autocompleteTalentTagData.value" v-model="state.user.talent_tag_list" />
                 <div class="vh-30">
                     <form-area id="bio" :characterLimit="characterLimit" :invalidMessage="$t('too_many_chars')" :validation="state.user.profile_attributes.bio.length <= characterLimit" :label="$t('about_me')" v-model="state.user.profile_attributes.bio" />
                 </div>
@@ -46,6 +48,7 @@
 import store from '../../store'
 import { ref, reactive, onMounted } from '@vue/runtime-core'
 import { securedAxiosInstance } from '../../backend/axios'
+import { getAutoCompleteInterestTags, getAutoCompleteTalentTags } from '../../helper/serverRequests'
 import FormField from '../components/FormField.vue'
 import FormArea from '../components/FormArea.vue'
 import Modal from '../components/Modal.vue'
@@ -76,7 +79,6 @@ export default {
             email:"",
             bio:"",
             password:"",
-            password_confirmation:"",
             current_password:""
         })
         const state = reactive({
@@ -84,9 +86,9 @@ export default {
                 username:"",
                 email:"",
                 password:"",
-                password_confirmation:"",
                 current_password:"",
                 interest_tag_list:"",
+                talent_tag_list:"",
                 profile_attributes:{
                     bio:""
                 }
@@ -96,13 +98,25 @@ export default {
         const toastRef = ref()
         const toastHtmlContent = ref("")
 
-        const autocompleteData = reactive({})
+        const autocompleteInterestTagData = reactive({})
+        const autocompleteTalentTagData = reactive({})
+
         const interestTagString = ref("")
+        const talentTagString = ref("")
         onMounted(() => {
             //This should be in component
             M.CharacterCounter.init(document.querySelectorAll('.has-character-counter'));//is it useless?
 
-            getInterestTags()
+            getAutoCompleteInterestTags().then(response => {
+                autocompleteInterestTagData.value = response; 
+
+                }), error => console.log(error)
+
+            getAutoCompleteTalentTags().then(response => {
+                autocompleteTalentTagData.value = response; 
+
+                }), error => console.log(error)
+
             state.user = store.state.authUser
 
             securedAxiosInstance.get(`/users/${state.user.id}/profile`)
@@ -111,6 +125,7 @@ export default {
                     avatarUrl.value = API_URL + response.data.avatar
 
                     interestTagString.value = response.data.interest_tag_list
+                    talentTagString.value = response.data.talent_tag_list
 
                     if (!response.data.avatar){
                         avatarUrl.value = require('@/assets/images/user.png')
@@ -128,7 +143,6 @@ export default {
             let patchedUser = {}
 
             patchedUser.password = state.user.password
-            patchedUser.password_confirmation = state.user.password_confirmation
             patchedUser.current_password = state.user.current_password
 
             securedAxiosInstance.put(`/users`, { user: patchedUser })
@@ -153,20 +167,6 @@ export default {
                 toastRef.value.show()
             }
 
-        }
-        function getInterestTags(){
-            securedAxiosInstance.get('/tags/interests')
-            .then(response => {
-                const tags = response.data.message
-
-                const len = tags.length
-                for (let i = 0; i < len; i++){
-                    autocompleteData[tags[i].name] = null
-                }
-                
-            }), error => {
-                console.log(error)
-            }
         }
         function clearPasswordFields(){
             state.user.password = ""
@@ -230,7 +230,7 @@ export default {
             passwordChangeModalRef.value.open()
         }
 
-        return { autocompleteData, interestTagString, toastRef, toastHtmlContent, passwordChangeModalRef, openPasswordModal, clearPasswordFields, updatePassword, characterLimit, state, errors, avatarUrl, onFileChange, updateProfile }
+        return { autocompleteTalentTagData, autocompleteInterestTagData, talentTagString, interestTagString, toastRef, toastHtmlContent, passwordChangeModalRef, openPasswordModal, clearPasswordFields, updatePassword, characterLimit, state, errors, avatarUrl, onFileChange, updateProfile }
     }
 }
 </script>

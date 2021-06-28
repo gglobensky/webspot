@@ -16,8 +16,8 @@
                 <slot name="body" />
 
                 <div class="col col-12 d-flex justify-content-end nopadding">
-                    <a @click="hidePeople()" class="btn-floating waves-effect waves-light me-3 mt-3 default-pale"><i class="material-icons">remove</i></a>
-                    <a @click="addPeople()" class="btn-floating waves-effect waves-light mt-3 default-dark"><i class="material-icons">add</i></a>
+                    <a @click="hidePeople()" class="btn-floating waves-effect waves-light me-3 mt-3 default-pale"><i class="material-icons-outlined" >{{hideIcon}}</i></a>
+                    <a @click="followPeople()" class="btn-floating waves-effect waves-light mt-3 default-dark"><i class="material-icons">{{addIcon}}</i></a>
                 </div>
             </div>
         </div>
@@ -25,18 +25,55 @@
 </template>
 
 <script>
-
+import { watch, ref } from 'vue'
 export default {
     name: 'profile-card',
-    setup(_, { emit }){
-        function addPeople(){
-            emit("addPeople")
+    props: {
+        showHideIcon: {
+            type: Boolean,
+            default: true
+        },
+        showAddIcon: {
+            type: Boolean,
+            default: true
+        }
+    },
+    setup(props, { emit }){
+        const hideIcon = ref("visibility")
+        const addIcon = ref("add")
+        
+        function followPeople(){
+            emit("followPeople")
         }
         function hidePeople(){
             emit("hidePeople")
         }
 
-        return { hidePeople, addPeople }
+        toggleHideIconValue()
+        toggleAddIconValue()
+
+        function toggleHideIconValue(){
+            if (props.showHideIcon)
+                hideIcon.value = "visibility"
+            else
+                hideIcon.value = "visibility_off"
+        }
+        function toggleAddIconValue(){
+            if (props.showAddIcon)
+                addIcon.value = "add"
+            else
+                addIcon.value = "remove"
+
+        }
+        watch(() => props.showHideIcon, () => { 
+            toggleHideIconValue()
+        })
+
+        watch(() => props.showAddIcon, () => { 
+            toggleAddIconValue()
+        })
+        
+        return { addIcon, hideIcon, hidePeople, followPeople }
     }
 
 }

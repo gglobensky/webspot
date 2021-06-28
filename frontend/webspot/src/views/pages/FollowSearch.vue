@@ -6,7 +6,17 @@
         <form @submit.prevent="searchPeople">
             <div class="card-panel grey lighten-5 z-depth-1" style="height: 87vh; position: relative; top: 62px;">
                 <div class="scrollable" style="height: 90%">
-                <form-field id="'username'" v-model="searchData.searchTerms" label="Search"/>
+                <div v-show="searchData.searchBy == 'username' || searchData.searchBy == 'bio'" class="pb-1">
+
+                    <form-field id="'username'" v-model="searchData.searchTerms" :label="$t('search')" />
+                </div>
+                <div v-show="searchData.searchBy == 'talents'" class="pb-4" >
+                    <form-chips v-model="searchData.searchTerms" :unique_id="'talents'" :placeholder="$t('search')" :initialData="talentTagString" :autocompleteData="autocompleteTalentTagData.value" />
+                </div>
+                <div v-show="searchData.searchBy == 'interests'" class="pb-4">
+                    <form-chips v-model="searchData.searchTerms" :unique_id="'interests'" :placeholder="$t('search')" :initialData="interestTagString" :autocompleteData="autocompleteInterestTagData.value" />
+                </div>
+                
                 <h6>{{$t('in_group')}}</h6>
                 <div class="input-field mb-5">
                     <div style="height: 15vh">
@@ -42,7 +52,7 @@
         <div class="col col-12 col-sm-7 col-md-8 col-lg-9 nopadding">     
             
             <div v-for="(n, i) in displayedPeopleData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 pe-3">
-                <profile-card @hidePeople="hidePeople(displayedPeopleData[i].id, displayedPeopleData[i].username)" @addPeople="addPeople(displayedPeopleData[i].id, displayedPeopleData[i].username)" >
+                <profile-card :showHideIcon="hideIcon" :showAddIcon="addIcon" @hidePeople="hideButtonCallback(displayedPeopleData[i].id, displayedPeopleData[i].username)" @followPeople="addButtonCallback(displayedPeopleData[i].id, displayedPeopleData[i].username)" >
                     <template #image>
                         <img v-if="displayedPeopleData[i].url" :src="`${API_URL}${displayedPeopleData[i].url}`" :alt="`${displayedPeopleData[i].username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
                         <img v-else :src="require('@/assets/images/user.png')" :alt="`${displayedPeopleData[i].username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
@@ -51,24 +61,24 @@
                         {{displayedPeopleData[i].username}}
                     </template>
                     <template #body>
-                        <div v-if="searchData.searchBy != 'interests'">
+                        <div v-if="searchData.searchBy == 'interests' || searchData.searchBy == 'talents'">
+                            <div class="col col-12 mt-2 d-flex justify-content-start" style="height: 8vh;">
+                                <p class="text-center text-overflow-ellipsis-2l">
+                                   {{$t('interests') + ':'}} {{displayedPeopleData[i].interest_tag_list != null ? displayedPeopleData[i].interest_tag_list : $t('none')}}
+                                </p>
+                            </div>  
+                            <div class="col col-12 d-flex justify-content-start" style="height: 8vh;">
+                                <p class="text-center text-overflow-ellipsis-2l">
+                                    {{$t('talents') + ':'}}  {{displayedPeopleData[i].talent_tag_list != null ? displayedPeopleData[i].talent_tag_list : $t('none')}}
+                                </p>
+                            </div>    
+                        </div>
+                        <div v-else>
                             <div class="col col-12 mt-2 d-flex justify-content-center" style="height: 16vh;">
                                 <p class="text-center text-overflow-ellipsis-5l">
                                     {{displayedPeopleData[i].bio}}
                                 </p>
-                            </div>
-                        </div>
-                        <div v-else>
-                            <div class="col col-12 mt-2 d-flex justify-content-start" style="height: 8vh;">
-                                <p class="text-center text-overflow-ellipsis-2l">
-                                    Interests: {{displayedPeopleData[i].interest_tag_list}}
-                                </p>
-                            </div>               
-                            <div class="col col-12 d-flex justify-content-start" style="height: 8vh;">
-                                <p class="text-center text-overflow-ellipsis-2l">
-                                    Talents: placeholder placeholder placeholder placeholder placeholder placeholder placeholder placeholder
-                                </p>
-                            </div>    
+                            </div>             
                         </div>        
                     </template>
                 </profile-card>
@@ -80,6 +90,8 @@
 
 <script>
 import { securedAxiosInstance } from '../../backend/axios'
+import { getAutoCompleteInterestTags, getAutoCompleteTalentTags } from '../../helper/serverRequests'
+import FormChips from '../components/FormChips.vue'
 import { API_URL } from '../../helper/serverRequests'
 import ProfileCard from '../components/ProfileCard.vue'
 import FormField from '../components/FormField.vue'
@@ -92,9 +104,19 @@ export default {
     components:{
         ProfileCard,
         FormField,
-        Toast
+        Toast,
+        FormChips
     },
     setup(){
+        const autocompleteInterestTagData = reactive({})
+        const autocompleteTalentTagData = reactive({})
+
+        const interestTagString = ref("")
+        const talentTagString = ref("")
+
+        const hideIcon = ref(true);
+        const addIcon = ref(true);
+
         const { t } = useI18n()
         const searchForTerms = [
             "new_people",
@@ -105,14 +127,14 @@ export default {
         const searchByTerms = [
             "username",
             "bio",
-            "interests"
+            "interests",
+            "talents"
         ]
         const searchData = reactive({
             searchTerms: "",
             searchFor: searchForTerms[0],
             searchBy: searchByTerms[0]
         })
-        //reactive?
         const displayedPeopleData = ref({
             user: {
                 username:""
@@ -122,11 +144,21 @@ export default {
         })
         const toastRef = ref()
         const toastHtmlContent = ref("")
-        function addPeople(person_id, person_username){
-            securedAxiosInstance.post('/following/create', { followed_id: person_id })
+
+        function followPeople(person_id, person_username){
+            securedAxiosInstance.post('/following/follow', { followed_id: person_id })
                 .then(() => {
                     removeFromDisplayedPeopleData(person_id)
                     toastHtmlContent.value = t("followed_user", { user: person_username})
+                    toastRef.value.show()
+                })
+                ,(error => console.log(error))
+        }
+        function unfollowPeople(person_id, person_username){
+            securedAxiosInstance.post('/following/unfollow', { followed_id: person_id })
+                .then(() => {
+                    removeFromDisplayedPeopleData(person_id)
+                    toastHtmlContent.value = t("unfollowed_user", { user: person_username})
                     toastRef.value.show()
                 })
                 ,(error => console.log(error))
@@ -140,10 +172,31 @@ export default {
                 })
                 ,(error => console.log(error))
         }
+        function unhidePeople(person_id, person_username){
+            securedAxiosInstance.post('/following/unhide', { hidden_person_id: person_id })
+                .then(() => {
+                    removeFromDisplayedPeopleData(person_id)
+                    toastHtmlContent.value = t("unhidden_user", { user: person_username})
+                    toastRef.value.show()
+                })
+                ,(error => console.log(error))
+        }
+        function hideButtonCallback(person_id, person_username){
+            if (hideIcon.value == false)
+                hidePeople(person_id, person_username)
+            else
+                unhidePeople(person_id, person_username)
+        }
+        function addButtonCallback(person_id, person_username){
+            if (addIcon.value == false)
+                unfollowPeople(person_id, person_username)
+            else
+                followPeople(person_id, person_username)
+        }
         function removeFromDisplayedPeopleData(id){
 
             for (var i = displayedPeopleData.value.length - 1; i >= 0; --i) {
-                console.log(JSON.stringify(displayedPeopleData.value))
+
                 if (displayedPeopleData.value[i].id == id) {
                     displayedPeopleData.value.splice(i, 1);
                     return
@@ -151,7 +204,21 @@ export default {
             }
         }
         function searchPeople(){
-            //0 is the placeholder, a disabled option
+
+            if (searchData.searchFor.startsWith("hidden")){
+                hideIcon.value = true;
+            }
+            else{
+                hideIcon.value = false;
+            }
+
+            if (searchData.searchFor.includes("followed")){
+                addIcon.value = false;
+            }
+            else{
+                addIcon.value = true;
+            }
+
             securedAxiosInstance.post('/following/search', { searchBy: searchData.searchBy, searchFor: searchData.searchFor, searchTerms: searchData.searchTerms? searchData.searchTerms.toLowerCase() : "" })
                 .then(response => {
                     displayedPeopleData.value = response.data
@@ -162,6 +229,16 @@ export default {
             window.addEventListener("scroll", onScroll)
             var elems = document.querySelectorAll('select');
             M.FormSelect.init(elems);
+
+            getAutoCompleteInterestTags().then(response => {
+                autocompleteInterestTagData.value = response; 
+
+                }), error => console.log(error)
+
+            getAutoCompleteTalentTags().then(response => {
+                autocompleteTalentTagData.value = response; 
+
+                }), error => console.log(error)
 
             searchPeople()
 
@@ -178,7 +255,7 @@ export default {
             console.log("Dont forget infinite scroll " + e)
         }
 
-        return { API_URL, toastHtmlContent, toastRef, displayedPeopleData, searchByTerms, searchForTerms, addPeople, hidePeople, searchPeople, searchData }
+        return { addIcon, hideIcon, autocompleteInterestTagData, autocompleteTalentTagData, interestTagString, talentTagString, API_URL, toastHtmlContent, toastRef, displayedPeopleData, searchByTerms, searchForTerms, addButtonCallback, hideButtonCallback, searchPeople, searchData }
     }
 
 }

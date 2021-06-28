@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :id="id" class="modal h-auto">
+    <div :id="id" class="modal h-auto" :style="'width:' + width + '; min-width: ' + minWidth">
         <div class="modal-content">
             <h5 class="text-center nopadding"><slot name="header" /></h5>
             <slot class="pt-5" name="body" />
@@ -29,11 +29,11 @@ export default {
         },
         width:{
             type: String,
-            default: '30vw'
+            default: '5vw'
         },
         minWidth:{
             type: String,
-            default: '300px'
+            default: '50px'
         },
         opacity: {
             type: Number,
@@ -61,7 +61,7 @@ export default {
         },
         endingTop: {
             type: String,
-            default: '20%'
+            default: '25%'
         },
         onOpenStart: Function,
         onOpenEnd: Function,

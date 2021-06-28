@@ -1,5 +1,5 @@
 <template>
-    <div :value="returnValue" class="chips chips-autocomplete"></div>
+    <div :value="returnValue" :class="'chips ' + unique_id + ' chips-autocomplete'"></div>
 </template>
 
 <script>
@@ -7,6 +7,10 @@ import M from 'materialize-css'
 import { onMounted, ref, watch } from 'vue'
 export default {
     props: {
+        unique_id:{
+            type: String,
+            required: true
+        },
         initialData: {
             type: String,
             required: true
@@ -26,7 +30,7 @@ export default {
             instances = []
             returnValue.value = props.initialData
             addTagListAsChips()
-            setupInterestTagList()
+            setupTagList()
         }
         onMounted(() => {
             init()
@@ -59,8 +63,8 @@ export default {
             }
             emit('update:modelValue', returnValue.value)
         }
-        function setupInterestTagList(){
-            const elems = document.querySelectorAll('.chips');
+        function setupTagList(){
+            const elems = document.querySelectorAll('.chips.' + props.unique_id);
  
             instances = M.Chips.init(elems, {
                 placeholder: props.placeholder,

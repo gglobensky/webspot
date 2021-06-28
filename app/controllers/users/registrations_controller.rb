@@ -13,6 +13,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # POST /resource
   def create
+    sign_up_params["password_confirmation"] = sign_up_params["password"]
     user = User.new(sign_up_params)
     user.build_profile
     if user.save
@@ -23,6 +24,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
       msg = { :status => "error", :message => content }
       render :json => msg
     end
+  rescue ActiveRecord::NotNullViolation
+    content = resource.to_json
+    msg = { :status => "error", :errors => {username: I18n.t('activerecord.errors.models.user.attributes.username.not_present')} }
+    render :json => msg
   end
 
 

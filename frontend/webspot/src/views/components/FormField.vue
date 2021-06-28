@@ -1,9 +1,9 @@
 <template>
     <div class="input-field">
-        <input :id="id" v-on:change="check()" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" :type="inputType" :class="'form-control ' + validationClass" />
-        <label :class="'form-label ' + activeClass" for="typeText">{{label}}</label>
+        <input :id="id" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" :type="inputType" :class="'form-control ' + validationClass" />
+        <label :class="'unclickable form-label ' + activeClass" style="color: #d1d1d1; font-size:1.10rem; line-height: 19px;" for="typeText">{{label}}</label>
         <span v-if="hasShowPasswordButton" @click="toggle" class="field-icon toggle-password"><span class="material-icons">{{state}}</span></span>
-        <span class="helper-text" :data-error="invalidMessage" :data-success="validMessage"></span>
+        <span v-if="validMessage != '' || invalidMessage != ''" class="helper-text" :data-error="invalidMessage" :data-success="validMessage"></span>
     </div>
 </template>
 
@@ -39,7 +39,6 @@ export default {
         const validationClass = ref("")
         const activeClass = ref("")
 
-
         if (props.hasShowPasswordButton == false){
             inputType.value = "text"
         }
@@ -48,7 +47,7 @@ export default {
             if (props.modelValue != "")
                 activeClass.value = "active"
             else
-                clearValidationClass()
+                activeClass.value = "inactive"
         })
         function toggle(){
             if (inputType.value == "password"){
@@ -60,39 +59,19 @@ export default {
                 state.value = "visibility_off"
             }
         }
-        function clearValidationClass(){
-            if (props.modelValue == ""){
-                validationClass.value = ""
-                return true
-            }
-            return false
-        }
         function switchValidationClass(){
-            
             if(props.validation) {
                 validationClass.value = "valid"
             } else {
                 validationClass.value = "invalid"
             }
         }
-        function check() {
-            if (props.validation == true)
-            {
-                if (clearValidationClass())
-                    return
-
-                switchValidationClass()
-            }
-
-        }
-
 //If the field just has been validated, switch validation state if needed
         watch(() => props.validation, () => { 
             switchValidationClass()
         })
 
-
-        return { inputType, toggle, state, validationClass, activeClass, check}
+        return { inputType, toggle, state, validationClass, activeClass}
     }
 }
 </script>

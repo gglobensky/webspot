@@ -18,13 +18,22 @@ export default createStore({
     },
     setAuthUser(state, payload){
         state.authUser = payload;
-        //This is optional data (seen in user's profile)
-        //If it is not set even before loading page
-        //Console will show up error even though bio
-        //is loaded because it won't be for a split second
-        //before getting requests response from server
+        //The user object is incomplete
+        //If I query for the data below,
+        //and have v-model set to those
+        //I will get undefined for a few
+        //ms if I don't already have fields
+
+
+        //Should probably have server return all of the info
+        //below instead, caching for better perf
         state.authUser['profile_attributes'] = {"bio": ""}
-        state.authUser['interest_tag_list'] = ""
+    },
+    setInterestTags(state, payload){
+      state.authUser['interest_tag_list'] = payload
+    },
+    setTalentTags(state, payload){
+      state.authUser['talent_tag_list'] = payload
     },
     setLoginModal(state, payload){
         state.isLoginOpen = payload;

@@ -71,7 +71,12 @@ en:
           attributes:
             email:
               taken: "Email already taken"
+              blank: "Email can't be blank"
             password:
               too_short: "Password too short"
+              blank: "Username is not present"
             password_confirmation:
               confirmation: "Passwords don't match"
+            username:
+              blank: "Username can't be blank"
+              taken: "Username already taken"

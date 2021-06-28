@@ -31,6 +31,10 @@
     "bio": "Bio",
     "search": "Recherche",
     "followed_user": "{user} suivi(e)",
-    "hidden_user": "{user} cachée",
-    "interests": "Intérêts"
+    "unfollowed_user": "{user} n'est plus suivi(e)",
+    "hidden_user": "{user} caché(e)",
+    "unhidden_user": "{user} décaché(e)",
+    "interests": "Intérêts",
+    "talents": "Talents",
+    "none": "Aucun"
 }

@@ -8,15 +8,15 @@
         <div class="vh-50 hidden-on-s hidden-on-md hidden-on-l hidden-on-xl" />
         <div class="container w-100 nopadding">
           <div class="col-sm-9 col-md-8">
-            <div class="input-field mx-5">
+            <div class="mx-5">
+              <form-field :id="'username'" :hasShowPasswordButton="false" :invalidMessage="errors.username" :validation="errors.username == ''" :label="$t('username')" v-model="state.user.username" />
+            </div>
+            <div class="mx-5">
               <form-field :id="'email'" :hasShowPasswordButton="false" :invalidMessage="errors.email" :validation="errors.email == ''" :label="$t('email')" v-model="state.user.email" />
             </div>
             <div class="mx-5">
               <form-field :id="'password'" :hasShowPasswordButton="true" :invalidMessage="errors.password" :validation="errors.password == ''" :label="$t('password')" v-model="state.user.password" />
             </div>
-              <div class="mx-5">
-                <form-field :id="'confirmation'" :hasShowPasswordButton="true" :invalidMessage="errors.password_confirmation" :validation="errors.password_confirmation == ''" :label="$t('confirmation')" v-model="state.user.password_confirmation" />
-              </div>
           </div>
           <div class="col col-12 ps-5">
             <router-link to="/" class="link" role="button">{{$t('sign_in')}}</router-link>
@@ -34,7 +34,7 @@
 <script>
 import LoginSidebar from '../components/LoginSidebar.vue'
 import FormField from '../components/FormField.vue'
-import { reactive } from 'vue';
+import { ref, reactive } from 'vue';
 import router from '../../router'
 import store from '../../store'
 import { getAvatarUrl } from '../../helper/serverRequests'
@@ -46,16 +46,16 @@ export default {
     FormField
   },
   setup(){
-    const errors = reactive({
-      email:"",
-      password:"",
-      password_confirmation:""
+    const errors = ref({
+        email:"",
+        username:"",
+        password:""
     })
     const state = reactive({
       user:{
-        email:"",
-        password:"",
-        password_confirmation:""
+        email:null,
+        username:null,
+        password:null
       }
     })
     function signup () {
@@ -78,12 +78,12 @@ export default {
     }
     function signinFailed (error) {
 
-        let response = JSON.parse(error.data.message)
-        errors.email = response.email? response.email[0] : ''
-        errors.password_confirmation = response.password_confirmation? response.password_confirmation[0] : ''
-        errors.password = response.password? response.password[0] : ''
+        const items = JSON.parse(error.data.message)
 
-        console.log(JSON.stringify(errors.email ))
+        for (const item in items) {
+          errors.value[item] = items[item][0]
+        }
+       
         delete localStorage.csrf
         delete localStorage.signedIn
       

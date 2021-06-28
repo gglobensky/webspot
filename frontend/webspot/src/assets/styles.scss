@@ -16,11 +16,15 @@
     background: linear-gradient(to bottom, #64b5f6, #0d47a1)
   }
 
-#toast-container {
+  #toast-container {
     min-width: 10%;
     top: 0%;
     right:50%;
     transform: translateX(50%);
+}
+
+.input {
+    font-size: 1.10rem !important;
 }
 
 .scrollable {

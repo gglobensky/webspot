@@ -16,3 +16,50 @@ export function getAvatarUrl(){
         });
     })
 }
+
+export function getAutoCompleteInterestTags(){
+    return new Promise(resolve => {
+
+    securedAxiosInstance.get('/tags/interests')
+    .then(response => {
+        let autocompleteInterestTagData = []
+        const tags = response.data.message
+
+        const len = tags.length
+        for (let i = 0; i < len; i++){
+            autocompleteInterestTagData[tags[i].name] = null
+        }
+        resolve(autocompleteInterestTagData)
+    }), error => {
+        console.log(resolve(error))
+    }
+
+    })
+}
+
+
+export function getAutoCompleteTalentTags(){
+    return new Promise(resolve => {
+
+        securedAxiosInstance.get('/tags/talents')
+        .then(response => {
+            let autocompleteTalentTagData = []
+            const tags = response.data.message
+        
+            const len = tags.length
+            for (let i = 0; i < len; i++){
+                autocompleteTalentTagData[tags[i].name] = null
+            }
+            resolve(autocompleteTalentTagData)
+        }), error => {
+            console.log(resolve(error))
+        }
+
+    })
+}
+
+
+
+
+
+
