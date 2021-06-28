@@ -2,7 +2,7 @@
   <div>
     <div :id="id" class="modal h-auto" :style="'width:' + width + '; min-width: ' + minWidth">
         <div class="modal-content">
-            <h5 class="text-center nopadding"><slot name="header" /></h5>
+            <h5 class="text-center pb-5"><slot name="header" /></h5>
             <slot class="pt-5" name="body" />
             
         </div>

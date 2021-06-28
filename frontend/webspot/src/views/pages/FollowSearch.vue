@@ -6,15 +6,14 @@
         <form @submit.prevent="searchPeople">
             <div class="card-panel grey lighten-5 z-depth-1" style="height: 87vh; position: relative; top: 62px;">
                 <div class="scrollable" style="height: 90%">
-                <div v-show="searchData.searchBy == 'username' || searchData.searchBy == 'bio'" class="pb-1">
-
+                <div v-if="searchData.searchBy == 'username' || searchData.searchBy == 'bio'" class="pb-1">
                     <form-field id="'username'" v-model="searchData.searchTerms" :label="$t('search')" />
                 </div>
-                <div v-show="searchData.searchBy == 'talents'" class="pb-4" >
-                    <form-chips v-model="searchData.searchTerms" :unique_id="'talents'" :placeholder="$t('search')" :initialData="talentTagString" :autocompleteData="autocompleteTalentTagData.value" />
+                <div v-else-if="searchData.searchBy == 'talents'" class="pb-4" >
+                    <form-chips v-model="searchData.searchTerms" :unique_id="'talents'" :placeholder="$t('search')" :initialData="searchData.searchTerms" :autocompleteData="autocompleteTalentTagData.value" />
                 </div>
-                <div v-show="searchData.searchBy == 'interests'" class="pb-4">
-                    <form-chips v-model="searchData.searchTerms" :unique_id="'interests'" :placeholder="$t('search')" :initialData="interestTagString" :autocompleteData="autocompleteInterestTagData.value" />
+                <div v-else-if="searchData.searchBy == 'interests'" class="pb-4">
+                    <form-chips v-model="searchData.searchTerms" :unique_id="'interests'" :placeholder="$t('search')" :initialData="searchData.searchTerms" :autocompleteData="autocompleteInterestTagData.value" />
                 </div>
                 
                 <h6>{{$t('in_group')}}</h6>
@@ -96,7 +95,7 @@ import { API_URL } from '../../helper/serverRequests'
 import ProfileCard from '../components/ProfileCard.vue'
 import FormField from '../components/FormField.vue'
 import Toast from '../components/Toast.vue'
-import { onBeforeUnmount, onMounted, ref, reactive } from 'vue'
+import { onBeforeUnmount, onMounted, ref, reactive, } from 'vue'
 import M from 'materialize-css'
 import { useI18n } from 'vue-i18n'
 export default {
@@ -110,9 +109,6 @@ export default {
     setup(){
         const autocompleteInterestTagData = reactive({})
         const autocompleteTalentTagData = reactive({})
-
-        const interestTagString = ref("")
-        const talentTagString = ref("")
 
         const hideIcon = ref(true);
         const addIcon = ref(true);
@@ -255,7 +251,7 @@ export default {
             console.log("Dont forget infinite scroll " + e)
         }
 
-        return { addIcon, hideIcon, autocompleteInterestTagData, autocompleteTalentTagData, interestTagString, talentTagString, API_URL, toastHtmlContent, toastRef, displayedPeopleData, searchByTerms, searchForTerms, addButtonCallback, hideButtonCallback, searchPeople, searchData }
+        return { addIcon, hideIcon, autocompleteInterestTagData, autocompleteTalentTagData, API_URL, toastHtmlContent, toastRef, displayedPeopleData, searchByTerms, searchForTerms, addButtonCallback, hideButtonCallback, searchPeople, searchData }
     }
 
 }

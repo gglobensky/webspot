@@ -2,13 +2,13 @@
     <div class="input-field">
         <input :id="id" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" :type="inputType" :class="'form-control ' + validationClass" />
         <label :class="'unclickable form-label ' + activeClass" style="color: #d1d1d1; font-size:1.10rem; line-height: 19px;" for="typeText">{{label}}</label>
-        <span v-if="hasShowPasswordButton" @click="toggle" class="field-icon toggle-password"><span class="material-icons">{{state}}</span></span>
+        <span v-if="hasShowPasswordButton" @click="togglePassword" class="field-icon toggle-password"><span class="material-icons">{{state}}</span></span>
         <span v-if="validMessage != '' || invalidMessage != ''" class="helper-text" :data-error="invalidMessage" :data-success="validMessage"></span>
     </div>
 </template>
 
 <script>
-import { onBeforeUpdate, ref, watch} from 'vue'
+import { onBeforeUpdate, onMounted, ref, watch} from 'vue'
 
 export default {
     name: 'form-field',
@@ -44,12 +44,20 @@ export default {
         }
         
         onBeforeUpdate(() => {
+            toggleActivity()
+        })
+        onMounted(() => {
+            toggleActivity()
+        })
+        function toggleActivity(){
             if (props.modelValue != "")
                 activeClass.value = "active"
             else
                 activeClass.value = "inactive"
-        })
-        function toggle(){
+
+                console.log("patrice")
+        }
+        function togglePassword(){
             if (inputType.value == "password"){
                 inputType.value = "text"
                 state.value = "visibility"
@@ -71,7 +79,7 @@ export default {
             switchValidationClass()
         })
 
-        return { inputType, toggle, state, validationClass, activeClass}
+        return { inputType, togglePassword, state, validationClass, activeClass}
     }
 }
 </script>
