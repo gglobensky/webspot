@@ -31,7 +31,6 @@ export default {
             returnValue.value = props.initialData
             addTagListAsChips()
             setupTagList()
-            console.log(props.initialData)
         }
         onMounted(() => {
             init()

@@ -54,8 +54,6 @@ export default {
                 activeClass.value = "active"
             else
                 activeClass.value = "inactive"
-
-                console.log("patrice")
         }
         function togglePassword(){
             if (inputType.value == "password"){

@@ -36,6 +36,7 @@
                         </label>
                     </p>
                 </div>
+
                 <div class="input-field">
                     <button class="waves-effect waves-light btn right mt-5">{{$t('search')}}</button>
                 </div>
@@ -60,23 +61,23 @@
                         {{displayedPeopleData[i].username}}
                     </template>
                     <template #body>
-                        <div v-if="searchData.searchBy == 'interests' || searchData.searchBy == 'talents'">
+                        <div v-show="searchData.searchBy == 'interests' || searchData.searchBy == 'talents'">
                             <div class="col col-12 mt-2 d-flex justify-content-start" style="height: 8vh;">
-                                <p class="text-center text-overflow-ellipsis-2l">
+                                <a class="text-center text-overflow-ellipsis-2l black-text tooltipped" data-position="bottom" :data-tooltip="displayedPeopleData[i].interest_tag_list != null ? displayedPeopleData[i].interest_tag_list : $t('none')">
                                    {{$t('interests') + ':'}} {{displayedPeopleData[i].interest_tag_list != null ? displayedPeopleData[i].interest_tag_list : $t('none')}}
-                                </p>
+                                </a>
                             </div>  
                             <div class="col col-12 d-flex justify-content-start" style="height: 8vh;">
-                                <p class="text-center text-overflow-ellipsis-2l">
-                                    {{$t('talents') + ':'}}  {{displayedPeopleData[i].talent_tag_list != null ? displayedPeopleData[i].talent_tag_list : $t('none')}}
-                                </p>
+                                <a class="text-center text-overflow-ellipsis-2l black-text tooltipped" data-position="bottom" :data-tooltip="displayedPeopleData[i].talent_tag_list != null ? displayedPeopleData[i].talent_tag_list : $t('none')">
+                                    {{$t('talents') + ':'}} {{displayedPeopleData[i].talent_tag_list != null ? displayedPeopleData[i].talent_tag_list : $t('none')}}
+                                </a>
                             </div>    
                         </div>
-                        <div v-else>
+                        <div v-show="searchData.searchBy == 'bio' || searchData.searchBy == 'username'" >
                             <div class="col col-12 mt-2 d-flex justify-content-center" style="height: 16vh;">
-                                <p class="text-center text-overflow-ellipsis-5l">
+                                <a class="text-center text-overflow-ellipsis-5l black-text tooltipped" data-position="bottom" :data-tooltip="displayedPeopleData[i].bio">
                                     {{displayedPeopleData[i].bio}}
-                                </p>
+                                </a>
                             </div>             
                         </div>        
                     </template>
@@ -243,9 +244,7 @@ export default {
             window.removeEventListener("scroll", onScroll)
         })
         function onScroll(e) {
-
             manageSearchBarPosition(e)
-
         }
         function manageSearchBarPosition(e){
             console.log("Dont forget infinite scroll " + e)

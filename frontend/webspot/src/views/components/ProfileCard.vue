@@ -26,6 +26,7 @@
 
 <script>
 import { watch, ref } from 'vue'
+import M from 'materialize-css'
 export default {
     name: 'profile-card',
     props: {
@@ -48,6 +49,12 @@ export default {
         function hidePeople(){
             emit("hidePeople")
         }
+
+
+        const elems = document.querySelectorAll('.tooltipped');
+        M.Tooltip.init(elems, {
+            enterDelay: 1000
+        });
 
         toggleHideIconValue()
         toggleAddIconValue()
