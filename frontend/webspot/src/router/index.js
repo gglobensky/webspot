@@ -4,6 +4,7 @@ import SignUp from '../views/pages/SignUp.vue'
 import Home from '../views/pages/Home.vue'
 import Profile from '../views/pages/Profile.vue'
 import FollowSearch from '../views/pages/FollowSearch.vue'
+import ChatRoom from '../views/pages/ChatRoom.vue'
 import store from '../store/index'
 
 const routes = [
@@ -11,7 +12,8 @@ const routes = [
   { path: '/signup', name: 'SignUp', component: SignUp },
   { path: '/home', name: 'Home', component: Home, meta: { middleware:'auth' } },
   { path: '/profile', name: 'Profile', component: Profile, meta: { middleware:'auth' } },
-  { path: '/find_friends', name: 'FollowSearch', component: FollowSearch, meta: { middleware:'auth' } }
+  { path: '/find_friends', name: 'FollowSearch', component: FollowSearch, meta: { middleware:'auth' } },
+  { path: '/chat', name: 'ChatRoom', component: ChatRoom, meta: { middleware:'auth' } }
 ]
 
 const router = createRouter({

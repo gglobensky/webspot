@@ -2,8 +2,20 @@
     <div class="card-panel grey lighten-5 z-depth-1 d-flex" style="margin-bottom: 0px">
         <div class="col col-12">
             <div class="row" style="height: 15vh">
-                <div class="col col-12 d-flex justify-content-center h-100">
+                <div class="col col-8 offset-2 d-flex justify-content-center h-100">
                     <slot name="image" />
+                </div>
+                <div class="col-2">
+                    <a href='#' data-target='dropdown1' class="profile-card dropdown-trigger waves-effect waves-light me-3"><i class="material-icons" >more_horiz</i></a>
+                    <ul id='dropdown1' class='dropdown-content'>
+                        <li>
+                        <a class="link" @click="chat()">
+                            <span class="material-icons-outlined">mode_comment</span>
+                            Chat
+                        </a>
+                        </li>
+                        <li><a href="#!"><span class="material-icons-outlined">add_comment</span>Group Chat</a></li>
+                    </ul>
                 </div>
             </div>
             <div class="row nopadding">
@@ -49,11 +61,19 @@ export default {
         function hidePeople(){
             emit("hidePeople")
         }
+        function chat(){
+            emit("chat")
+        }
 
 
-        const elems = document.querySelectorAll('.tooltipped');
+        let elems = document.querySelectorAll('.tooltipped');
         M.Tooltip.init(elems, {
             enterDelay: 1000
+        });
+
+        elems = document.querySelectorAll('.dropdown-trigger');
+        M.Dropdown.init(elems, {
+            constrainWidth: false
         });
 
         toggleHideIconValue()
@@ -80,7 +100,7 @@ export default {
             toggleAddIconValue()
         })
         
-        return { addIcon, hideIcon, hidePeople, followPeople }
+        return { chat, addIcon, hideIcon, hidePeople, followPeople }
     }
 
 }

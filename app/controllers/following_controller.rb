@@ -86,26 +86,27 @@ class FollowingController < ApplicationController
     else
       searchTermsArray = searchTerms.split(', ', -4)
 
-      searchTerm = ""
+      search_where_condition = ""
       $i = 0
       $num = searchTermsArray.count
 
+      if searchBy == 'interests'
+        column_name = "interest_tags"
+      elsif searchBy == 'talents'
+        column_name = "talent_tags"
+      end
+
       while $i < $num do
         interest = ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?", "%" + searchTermsArray[$i] + "%"])
-        searchTerm += interest
+        search_where_condition += column_name + ' LIKE ' + interest
+        
         if ($i != $num - 1)
-          searchTerm += "OR "
+          search_where_condition += " OR "
         end
 
         $i +=1
       end
 
-      if searchBy == 'interests'
-        search_where_condition = "interest_tags LIKE #{searchTerm}"
-      elsif searchBy == 'talents'
-        search_where_condition = "talent_tags LIKE #{searchTerm}"
-      end
-      
     end
 
     followings_where_condition = @followings != nil ? " users.id IN (#{@followings}) " : " users.id IN ('')"

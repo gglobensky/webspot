@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <div class="mt-5">
-                <h6>{{$t('by_term')}}</h6>
+                    <h6>{{$t('by_term')}}</h6>
                 </div>
                 <div class="input-field mb-5">
                     <p>
@@ -46,12 +46,12 @@
     </div>
     </div>
     <div class="row mt-3">
-        <div class="col col-0 col-sm-5 col-md-4 col-lg-3 ">
+        <div class="col col-sm-5 col-md-4 col-lg-3 hidden-on-xs">
             <!-- Spacer for search sidebar since it is fixed, it does not takes space -->
         </div>
         <div class="col col-12 col-sm-7 col-md-8 col-lg-9 nopadding">     
             
-            <div v-for="(n, i) in displayedPeopleData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 pe-3">
+            <div v-for="(n, i) in displayedPeopleData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 px-2 pe-sm-3">
                 <profile-card :showHideIcon="hideIcon" :showAddIcon="addIcon" @hidePeople="hideButtonCallback(displayedPeopleData[i].id, displayedPeopleData[i].username)" @followPeople="addButtonCallback(displayedPeopleData[i].id, displayedPeopleData[i].username)" >
                     <template #image>
                         <img v-if="displayedPeopleData[i].url" :src="`${API_URL}${displayedPeopleData[i].url}`" :alt="`${displayedPeopleData[i].username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
