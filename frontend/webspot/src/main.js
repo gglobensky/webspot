@@ -8,6 +8,7 @@ import 'materialize-css'
 import VueAxios from 'vue-axios'
 import { securedAxiosInstance, plainAxiosInstance } from './backend/axios'
 import 'material-icons/iconfont/material-icons.css';
+import { actionCableVue, actionCableVueOptions } from './backend/actioncable/actioncable';
 
 const app = createApp(App)
 app.use(
@@ -20,4 +21,5 @@ app.use(i18n)
 app.use(store)
 app.use(router)
 app.use(styles)
+app.use(actionCableVue, actionCableVueOptions)
 app.mount('#app')

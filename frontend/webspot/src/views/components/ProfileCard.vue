@@ -6,16 +6,7 @@
                     <slot name="image" />
                 </div>
                 <div class="col-2">
-                    <a href='#' data-target='dropdown1' class="profile-card dropdown-trigger waves-effect waves-light me-3"><i class="material-icons" >more_horiz</i></a>
-                    <ul id='dropdown1' class='dropdown-content'>
-                        <li>
-                        <a class="link" @click="chat()">
-                            <span class="material-icons-outlined">mode_comment</span>
-                            Chat
-                        </a>
-                        </li>
-                        <li><a href="#!"><span class="material-icons-outlined">add_comment</span>Group Chat</a></li>
-                    </ul>
+                    <a class="link" role="button" @click="chat()" ><i class="material-icons-outlined" >email</i></a>
                 </div>
             </div>
             <div class="row nopadding">
@@ -37,7 +28,7 @@
 </template>
 
 <script>
-import { watch, ref } from 'vue'
+import { watch, ref, onMounted } from 'vue'
 import M from 'materialize-css'
 export default {
     name: 'profile-card',
@@ -49,12 +40,28 @@ export default {
         showAddIcon: {
             type: Boolean,
             default: true
+        },
+        user_id: {
+            type: Number,
+            required: true
         }
     },
     setup(props, { emit }){
         const hideIcon = ref("visibility")
         const addIcon = ref("add")
-        
+
+        onMounted(() => {
+            let elems = document.querySelectorAll('.tooltipped');
+            M.Tooltip.init(elems, {
+                enterDelay: 1000
+            });
+
+            elems = document.querySelectorAll('.dropdown-trigger');
+            M.Dropdown.init(elems, {
+                constrainWidth: false
+            });
+        })
+
         function followPeople(){
             emit("followPeople")
         }
@@ -64,18 +71,7 @@ export default {
         function chat(){
             emit("chat")
         }
-
-
-        let elems = document.querySelectorAll('.tooltipped');
-        M.Tooltip.init(elems, {
-            enterDelay: 1000
-        });
-
-        elems = document.querySelectorAll('.dropdown-trigger');
-        M.Dropdown.init(elems, {
-            constrainWidth: false
-        });
-
+        
         toggleHideIconValue()
         toggleAddIconValue()
 

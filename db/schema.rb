@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_27_211039) do
+ActiveRecord::Schema.define(version: 2021_06_30_023832) do
 
   create_table "active_storage_attachments", charset: "utf8mb4", force: :cascade do |t|
     t.string "name", null: false
@@ -38,6 +38,11 @@ ActiveRecord::Schema.define(version: 2021_06_27_211039) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "conversations", charset: "utf8mb4", force: :cascade do |t|
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "followings", charset: "utf8mb4", force: :cascade do |t|
@@ -71,6 +76,16 @@ ActiveRecord::Schema.define(version: 2021_06_27_211039) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "messages", charset: "utf8mb4", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "conversation_id", null: false
+    t.text "content"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["conversation_id"], name: "index_messages_on_conversation_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
   create_table "profiles", charset: "utf8mb4", force: :cascade do |t|
     t.integer "user_id"
     t.text "bio", default: "''"
@@ -96,6 +111,15 @@ ActiveRecord::Schema.define(version: 2021_06_27_211039) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "user_conversations", id: false, charset: "utf8mb4", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "conversation_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["conversation_id"], name: "index_user_conversations_on_conversation_id"
+    t.index ["user_id"], name: "index_user_conversations_on_user_id"
+  end
+
   create_table "users", charset: "utf8mb4", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -114,6 +138,10 @@ ActiveRecord::Schema.define(version: 2021_06_27_211039) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "interest_taggings", "interest_tags"
   add_foreign_key "interest_taggings", "users"
+  add_foreign_key "messages", "conversations"
+  add_foreign_key "messages", "users"
   add_foreign_key "talent_taggings", "talent_tags"
   add_foreign_key "talent_taggings", "users"
+  add_foreign_key "user_conversations", "conversations"
+  add_foreign_key "user_conversations", "users"
 end

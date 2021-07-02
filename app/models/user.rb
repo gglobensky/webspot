@@ -4,7 +4,6 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-
   validates :username, presence: true
 
   has_many :followings
@@ -16,6 +15,10 @@ class User < ApplicationRecord
 
   has_many :talent_taggings
   has_many :talent_tags, through: :talent_taggings
+
+  has_many :user_conversations
+  has_many :conversations, through: :user_conversations
+  has_many :messages
 
   has_one_attached :avatar
   accepts_nested_attributes_for :profile, :allow_destroy => true

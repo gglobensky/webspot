@@ -1,6 +1,6 @@
 <template>
     <div class="input-field">
-        <textarea :id="id" v-on:change="check()" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" :class="'materialize-textarea ' + hasCharacterCounterClass + validationClass" :data-length="characterLimit"></textarea>
+        <textarea :placeholder="placeholder" :id="id" v-on:change="check()" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" :class="'materialize-textarea ' + hasCharacterCounterClass + validationClass" :data-length="characterLimit"></textarea>
         <label :class="activeClass" :for="id">{{label}}</label>
         <span class="helper-text" :data-error="invalidMessage" :data-success="validMessage"></span>
 
@@ -23,7 +23,8 @@ export default {
         validation: Boolean,
         validMessage: String,
         invalidMessage: String,
-        characterLimit: Number
+        characterLimit: Number,
+        placeholder: String
     },
     emits: ['update:modelValue'],
     methods: {

@@ -6,40 +6,39 @@
         <form @submit.prevent="searchPeople">
             <div class="card-panel grey lighten-5 z-depth-1" style="height: 87vh; position: relative; top: 62px;">
                 <div class="scrollable" style="height: 90%">
-                <div v-if="searchData.searchBy == 'username' || searchData.searchBy == 'bio'" class="pb-1">
-                    <form-field id="'username'" v-model="searchData.searchTerms" :label="$t('search')" />
-                </div>
-                <div v-else-if="searchData.searchBy == 'talents'" class="pb-4" >
-                    <form-chips v-model="searchData.searchTerms" :unique_id="'talents'" :placeholder="$t('search')" :initialData="searchData.searchTerms" :autocompleteData="autocompleteTalentTagData.value" />
-                </div>
-                <div v-else-if="searchData.searchBy == 'interests'" class="pb-4">
-                    <form-chips v-model="searchData.searchTerms" :unique_id="'interests'" :placeholder="$t('search')" :initialData="searchData.searchTerms" :autocompleteData="autocompleteInterestTagData.value" />
-                </div>
-                
-                <h6>{{$t('in_group')}}</h6>
-                <div class="input-field mb-5">
-                    <div style="height: 15vh">
-                        <label v-for="group in searchForTerms" :key="group" :value="group" class="col col-12">
-                            <input name="group" type="radio" v-model="searchData.searchFor" :value="group">
-                            <span>{{$t(group)}}</span>
-                        </label>
+                    <div v-if="searchData.searchBy == 'username' || searchData.searchBy == 'bio'" class="pb-1">
+                        <form-field id="'username'" v-model="searchData.searchTerms" :label="$t('search')" />
                     </div>
-                </div>
-                <div class="mt-5">
-                    <h6>{{$t('by_term')}}</h6>
-                </div>
-                <div class="input-field mb-5">
-                    <p>
-                        <label v-for="term in searchByTerms" :key="term" :value="term" class="col col-12">
-                            <input name="term" type="radio" v-model="searchData.searchBy" :value="term">
-                            <span>{{$t(term)}}</span>
-                        </label>
-                    </p>
-                </div>
-
-                <div class="input-field">
-                    <button class="waves-effect waves-light btn right mt-5">{{$t('search')}}</button>
-                </div>
+                    <div v-else-if="searchData.searchBy == 'talents'" class="pb-4" >
+                        <form-chips v-model="searchData.searchTerms" :unique_id="'talents'" :placeholder="$t('search')" :initialData="searchData.searchTerms" :autocompleteData="autocompleteTalentTagData.value" />
+                    </div>
+                    <div v-else-if="searchData.searchBy == 'interests'" class="pb-4">
+                        <form-chips v-model="searchData.searchTerms" :unique_id="'interests'" :placeholder="$t('search')" :initialData="searchData.searchTerms" :autocompleteData="autocompleteInterestTagData.value" />
+                    </div>
+                    
+                    <h6>{{$t('in_group')}}</h6>
+                    <div class="input-field mb-5">
+                        <div style="height: 15vh">
+                            <label v-for="group in searchForTerms" :key="group" :value="group" class="col col-12">
+                                <input name="group" type="radio" v-model="searchData.searchFor" :value="group">
+                                <span>{{$t(group)}}</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-5">
+                        <h6>{{$t('by_term')}}</h6>
+                    </div>
+                    <div class="input-field mb-5">
+                        <p>
+                            <label v-for="term in searchByTerms" :key="term" :value="term" class="col col-12">
+                                <input name="term" type="radio" v-model="searchData.searchBy" :value="term">
+                                <span>{{$t(term)}}</span>
+                            </label>
+                        </p>
+                    </div>
+                    <div class="input-field">
+                        <button class="waves-effect waves-light btn right mt-5">{{$t('search')}}</button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -52,7 +51,7 @@
         <div class="col col-12 col-sm-7 col-md-8 col-lg-9 nopadding">     
             
             <div v-for="(n, i) in displayedPeopleData.length" :key="i" class="col col-12 col-sm-12 col-md-6 col-lg-4 px-2 pe-sm-3">
-                <profile-card :showHideIcon="hideIcon" :showAddIcon="addIcon" @hidePeople="hideButtonCallback(displayedPeopleData[i].id, displayedPeopleData[i].username)" @followPeople="addButtonCallback(displayedPeopleData[i].id, displayedPeopleData[i].username)" >
+                <profile-card :user_id="displayedPeopleData[i].id" @chat="chatButtonCallback(displayedPeopleData[i].id)" :showHideIcon="hideIcon" :showAddIcon="addIcon" @hidePeople="hideButtonCallback(displayedPeopleData[i].id, displayedPeopleData[i].username)" @followPeople="addButtonCallback(displayedPeopleData[i].id, displayedPeopleData[i].username)" >
                     <template #image>
                         <img v-if="displayedPeopleData[i].url" :src="`${API_URL}${displayedPeopleData[i].url}`" :alt="`${displayedPeopleData[i].username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
                         <img v-else :src="require('@/assets/images/user.png')" :alt="`${displayedPeopleData[i].username}'s profile picture`" class="circle " style="max-height:128px; max-width: 128px" />
@@ -89,6 +88,7 @@
 </template>
 
 <script>
+import router from '../../router'
 import { securedAxiosInstance } from '../../backend/axios'
 import { getAutoCompleteInterestTags, getAutoCompleteTalentTags } from '../../helper/serverRequests'
 import FormChips from '../components/FormChips.vue'
@@ -222,6 +222,15 @@ export default {
                 })
                 ,(error => console.log(error))
         }
+        function chatButtonCallback(user_id){
+            securedAxiosInstance.post('/conversation/create', { user_id: user_id })
+                .then((response) => {
+                    console.log(response)
+                    router.push({ path: 'chat', query: { t: response.data.conversation } })
+                })
+                ,(error => console.log(error))
+
+        }
         onMounted(() => {
             window.addEventListener("scroll", onScroll)
             var elems = document.querySelectorAll('select');
@@ -250,7 +259,7 @@ export default {
             console.log("Dont forget infinite scroll " + e)
         }
 
-        return { addIcon, hideIcon, autocompleteInterestTagData, autocompleteTalentTagData, API_URL, toastHtmlContent, toastRef, displayedPeopleData, searchByTerms, searchForTerms, addButtonCallback, hideButtonCallback, searchPeople, searchData }
+        return { chatButtonCallback, addIcon, hideIcon, autocompleteInterestTagData, autocompleteTalentTagData, API_URL, toastHtmlContent, toastRef, displayedPeopleData, searchByTerms, searchForTerms, addButtonCallback, hideButtonCallback, searchPeople, searchData }
     }
 
 }

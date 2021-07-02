@@ -7,6 +7,7 @@ class FollowingController < ApplicationController
   def follow
     @following = current_user.followings.build(following_params)
 
+    #is it necessary? I built it from the user..
     @following.user_id = @current_user_id
 
     if @following.save

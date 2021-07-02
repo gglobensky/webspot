@@ -9,6 +9,10 @@ Rails.application.routes.draw do
   post 'following/unhide'
   get 'following/hidden'
 
+  post 'conversation/create'
+  post 'conversation/index'
+  post 'conversation/add_message'
+
   get 'tags/interests'
   get 'tags/talents'
 
@@ -16,6 +20,8 @@ Rails.application.routes.draw do
     get :avatar, on: :member
     get :profile, on: :member
   end
+
+  mount ActionCable.server => '/cable'
 
   post 'rails/active_storage/direct_uploads', to: 'direct_uploads#create'
   get '/resource/password', to: 'devise/password#create'
