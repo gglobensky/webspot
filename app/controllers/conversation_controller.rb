@@ -19,7 +19,7 @@ class ConversationController < ApplicationController
         user = current_user
         conversation_id = params[:conversation_id]
         messages = user.conversations.find(conversation_id).messages
-        messages = messages.joins(:user).select("username, content, messages.updated_at").as_json(only: [:username, :content, :updated_at])
+        messages = messages.joins(:user).select("username, content, messages.updated_at, messages.created_at").order(created_at: :asc).as_json(only: [:username, :content, :updated_at])
         render json: { messages: messages }
     end
 

@@ -36,5 +36,6 @@
     "unhidden_user": "{user} décaché(e)",
     "interests": "Intérêts",
     "talents": "Talents",
-    "none": "Aucun"
+    "none": "Aucun",
+    "me": "Moi"
 }

@@ -36,6 +36,7 @@
   "unhidden_user": "Unhidden {user}",
   "interests": "Interests",
   "talents": "Talents",
-  "none": "None"
+  "none": "None",
+  "me": "Me"
 
 }

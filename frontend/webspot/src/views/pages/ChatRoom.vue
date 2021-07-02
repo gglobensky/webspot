@@ -3,21 +3,28 @@
       <div class="row" style="height: 80vh; overflow: auto">
           <div class="col col-8">
               <div class="col col-12" v-for="message in messages" :key="message">
-                  <div :style="currentUsername == message.username? 'float:right;': 'float:left;'">
-                    <div :class="currentUsername == message.username? 'chat-box default-pale white-text' : 'chat-box grey lighten-2'">
+                <div v-if="currentUsername == message.username" style="float:right;">
+                    <div class="chat-box default-pale white-text">
                         {{message.content}}
                     </div>
-                  <p style="font-size:0.6rem">{{message.username}} at {{moment(message.updated_at).format('MMMM Do YYYY, h:mm a')}}</p>
-                  </div>
+                    <p style="font-size:0.6rem; float:right;">{{$t('me')}} {{moment(message.updated_at).fromNow()}}</p>
+                </div>
                   
+                <div v-else style="float:left;">
+                    <div class="chat-box grey lighten-2">
+                        {{message.content}}
+                    </div>
+                    <p style="font-size:0.6rem; float:left;">{{message.username}} {{moment(message.updated_at).fromNow()}}</p>
+                </div>
+
               </div>
               <div class="fixed-bottom">
-                <div class="col col-8 d-flex align-items-center">
-                    <div class="col col-11 px-5">
-                        <form-area v-model="currentMessage" placeholder="Type here" />
+                <div class="col col-8 d-flex align-items-end">
+                    <div class="col col-11 px-5 mb-3">
+                        <form-area maxHeight="58px" v-model="currentMessage" placeholder="Type here" />
                     </div>
                     <div class="col col-1">
-                        <button @click="sendMessage" class="btn waves-effect waves-light">Send</button>
+                        <button @click="sendMessage" class="btn waves-effect waves-light mb-5" >Send</button>
                     </div>
                 </div>
               </div>
@@ -86,15 +93,13 @@ export default {
 
         function sendMessage(){
             securedAxiosInstance.post('/conversation/add_message', { conversation_id: conversation_id, message: currentMessage.value })
-                .then(() => {
-
-                })
+                .then()
                 ,(error => console.log(error))
         }
 
         function receivedMessage(data){
             messages.value.push(data.message)
-            console.log("received " + messages.value)
+            console.log("received " + JSON.stringify(messages.value))
         }
         return { moment, currentUsername, receivedMessage, messages, currentMessage, sendMessage }
     }
