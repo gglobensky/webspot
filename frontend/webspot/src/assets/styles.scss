@@ -1,5 +1,6 @@
 @import './sass/materialize.scss';
 @import './css/bootstrap.min.css';
+
 .gradient-default {
     /* fallback for old browsers */
     background: #0d47a1;
@@ -21,6 +22,22 @@
     top: 0%;
     right:50%;
     transform: translateX(50%);
+}
+
+.relative {
+    position: relative;
+}
+
+.alert-dot {
+    content: "";
+    background: red;
+    width: 5px;
+    height: 5px;
+    display: block;
+    border-radius: 50%;
+    position: absolute;
+    right: 0;
+    top: 30%;
 }
 
 .input {

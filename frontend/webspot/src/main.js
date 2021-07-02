@@ -9,12 +9,20 @@ import VueAxios from 'vue-axios'
 import { securedAxiosInstance, plainAxiosInstance } from './backend/axios'
 import 'material-icons/iconfont/material-icons.css';
 import { actionCableVue, actionCableVueOptions } from './backend/actioncable/actioncable';
+import { getCurrentInstance } from 'vue'
 
 const app = createApp(App)
 app.use(
 VueAxios, {
     secured: securedAxiosInstance,
     plain: plainAxiosInstance
+})
+
+//Workaround for actioncable vue 3
+app.mixin({
+    created() {
+        this._uid = getCurrentInstance().uid
+    },
 })
 
 app.use(i18n)

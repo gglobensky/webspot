@@ -33,6 +33,12 @@ class ConversationController < ApplicationController
         if (message.save)
             json_message = { content: content, username: user.username }
             ActionCable.server.broadcast("conversation_channel_#{conversation_id}", { message: json_message })
+
+            receivers_user_ids = conversation.users.where.not('users.id = ?', user.id).pluck(:id)
+
+            receivers_user_ids.each do |id|
+                ActionCable.server.broadcast("notification_channel_#{id}", { message: json_message })
+            end
         end
     end
 end

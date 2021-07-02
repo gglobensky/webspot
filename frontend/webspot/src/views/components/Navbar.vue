@@ -14,8 +14,9 @@
       <router-link to="/Home" class="brand-logo ms-md-4 ms-lg-0">Webspot</router-link>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
-      <li><router-link to="/Home"><span class="d-flex align-items-center"><i class="material-icons px-3">home</i>{{$t('home')}}</span></router-link></li>
-        <li><a class="dropdown-trigger" href="#!" data-target="dropdown-nav"><span class="d-flex align-items-center"><i class="nopadding material-icons">touch_app</i>{{$t('actions')}}</span></a></li>
+        <li><router-link to="/Home"><span class="d-flex align-items-center"><i class="nopadding material-icons px-3">home</i>{{$t('home')}}</span></router-link></li>
+        <li><router-link to="/Conversations"><span class="d-flex align-items-center"><i class="relative nopadding material-icons px-3"><div :class="alertDot"></div> notifications</i>{{$t('alerts')}}</span></router-link></li>
+        <li><a class="dropdown-trigger" href="#!" data-target="dropdown-nav"><span class="d-flex align-items-center"><i class="nopadding material-icons">touch_app</i>{{$t('actions')}}</span></a></li> 
       </ul>
     </div>
   </nav>
@@ -35,22 +36,55 @@
 import M from 'materialize-css'
 import store from '../../store'
 import router from '../../router'
-import { onMounted } from '@vue/runtime-core'
+import { onMounted, ref, getCurrentInstance, onUnmounted } from '@vue/runtime-core'
 import { securedAxiosInstance } from '../../backend/axios'
 export default {
     name: 'navbar',
-    components:{
-      
+    channels: {
+        NotificationChannel: {
+            connected() {
+                console.log("connected to notifications")
+            },
+            rejected() {
+                console.log("rejected from notifications")
+            },
+            received(data) {
+                this.receivedNotification(data)
+            },
+            disconnected() {}
+        }
     },
     setup(){
+      const alertDot = ref("")
+      const user_id = store.state.authUser.id
+      let cable = {}
       
       onMounted(() => {
         const elems = document.querySelector('.dropdown-trigger');
         M.Dropdown.init(elems, {
             constrainWidth: false
         });
+
+        const instance = getCurrentInstance();
+        cable = instance.ctx.$root.$cable
+
+          cable.subscribe({
+              channel: 'NotificationChannel',
+              user_id: user_id,
+              room: 'public'
+          });
+
       })
 
+      onUnmounted(() => {
+          unsubscribe()
+      })
+
+      function unsubscribe() {
+          cable.unsubscribe('NotificationChannel');
+      }
+        
+    
       function signout() {
           securedAxiosInstance.delete(`/users/sign_out`)
           .then(() => {
@@ -66,8 +100,18 @@ export default {
         delete localStorage.csrf
         router.push('/')
       }
+      function showNotification(){
+        alertDot.value = "alert-dot"
+      }
+      /*function hideNotification(){
+        alertDot.value = ""
+      }*/
+      function receivedNotification(data){
+        showNotification()
+        console.log("notification data: " + data)
+      }
 
-      return { signout }
+      return { receivedNotification, signout, alertDot }
     }
 }
 </script>
